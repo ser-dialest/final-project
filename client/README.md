@@ -1,3 +1,42 @@
+# Components that are not mine
+DeleteBtn
+Form
+Grid
+Jumbotron
+List
+Nav
+
+# Pages that are not mine
+Books
+Detail
+NoMatch
+
+# Utils that are not mine
+API.js
+
+# Controllers that are not mine
+booksController.js
+
+# Models that are not mine
+book.js
+index.js (must be modified)
+
+# Public
+change favicon to something else
+
+# Routes that are not mine
+  ### api
+    books
+    index
+  index (but probably leave this alone)
+
+# SeedDB
+Gotta change this to add NPCs
+
+
+
+
+ # previous readme
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
 Below you will find some information on how to perform common tasks.<br>

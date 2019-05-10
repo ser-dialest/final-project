@@ -1,0 +1,19 @@
+body {
+    background: yellow;
+}
+
+#map {
+    display: grid;
+    grid-template: repeat(8, 48px) / repeat(8, 48px);
+}
+
+#m0101 {
+    grid-column-start: 1;
+}
+#m0102 {
+    grid-column-start: 2;
+}
+#m0201 {
+    grid-row-start: 2;
+    grid-column-start: 1;
+}

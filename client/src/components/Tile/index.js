@@ -17,13 +17,12 @@ class Tile extends Component {
     render () {
         return (
             <div 
-                key={this.props.id} 
-                id={this.props.id} 
+                key={this.props.id}
+                id={this.props.id}
                 style={{gridColumnStart:`${this.props.column}`, gridRowStart:`${this.props.row}`}}
                 onMouseEnter={() => this.hoverOn()}
                 onMouseLeave={() => this.hoverOff()}
                 onClick={this.props.move}
-
             >
                 <img 
                     key={this.props.id + "img"} 

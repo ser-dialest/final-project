@@ -4,7 +4,7 @@ body {
 
 #map {
     display: grid;
-    grid-template: repeat(16, 48px) / repeat(16, 48px);
+    grid-template: repeat(11, 48px) / repeat(17, 48px);
 }
 
 img {

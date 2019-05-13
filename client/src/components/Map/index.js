@@ -18,7 +18,7 @@ class Map extends Component {
         let column = Number(id.substring(1, id.indexOf("y")));
         let row = Number(id.substring(id.indexOf("y")+1));
         console.log(column, row);
-        if (column >= 9 && column <= 39 && row >= 6 && row <= 42) {     
+        if (column >= 9 && column <= 39 && row >= 6 && row <= 42) {    
             this.setState({origin: [column, row]});
         };
     };

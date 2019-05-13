@@ -5,4 +5,5 @@
     z-index: 1;
     background-image: url("./Player3.png");
     display: inline;
+    pointer-events: none;
 }

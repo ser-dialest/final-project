@@ -22,6 +22,8 @@ class Tile extends Component {
                 style={{gridColumnStart:`${this.props.column}`, gridRowStart:`${this.props.row}`}}
                 onMouseEnter={() => this.hoverOn()}
                 onMouseLeave={() => this.hoverOff()}
+                onClick={this.props.move}
+
             >
                 <img 
                     key={this.props.id + "img"} 
@@ -30,9 +32,11 @@ class Tile extends Component {
                 />
                 <img
                     className="cursor"
+                    key={this.props.id + "cursor"}
                     src={highlight}
                     alt=""
                     style={{display:this.state.cursor}}
+
                 />
             </div>
         );

@@ -13,6 +13,13 @@ class Map extends Component {
         origin: [0, 0]
     }
 
+    move(id) {
+        let column = Number(id.substring(1, id.indexOf("y")));
+        let row = Number(id.substring(id.indexOf("y")+1));
+        console.log(column, row);
+        this.setState({origin: [column, row]});
+    }
+
     render() {
         
         let x1 = this.state.origin[0];
@@ -26,13 +33,14 @@ class Map extends Component {
 
         while (x < width) {
             while (y < height) {
-                let id = "x" + (x+1) + "y" + (y+1);
+                let id = "x" + (x+x1) + "y" + (y+y1);
                 viewable.push(
                     <Tile 
                     id={id}
                     column={x+1}
                     row={y+1}
                     imageSource={map[x+x1][y+y1]}
+                    move={() => this.move(id)}
                     >
                     </Tile>                    
                 ); 

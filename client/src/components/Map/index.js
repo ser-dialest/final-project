@@ -1,50 +1,45 @@
 import React, { Component } from  "react";
-import grass from "./tiles/Grass3.png";
-import mountain from "./tiles/Mountain3.png";
-import building from "./tiles/Building3.png";
-import forest from "./tiles/Forest3.png";
+import map from "./mapArray";
 import "./style.css";
+import Tile from "../Tile";
 
 class Map extends Component {
+    constructor(props) {
+        super(props);
+        this.canvasRef = React.createRef();
+    };
+
     state = {
-        origin: [6,8],
-        map: [
-            [grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass],
-            [grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass],
-            [grass, grass, grass, grass, grass, grass, mountain, mountain, mountain, grass, grass, grass, grass, grass, grass, grass],
-            [grass, grass, grass, mountain, mountain, mountain, mountain, grass, grass, grass, grass, grass, grass, grass, grass, grass],
-            [grass, grass, mountain, mountain, mountain, grass, grass, grass, forest, forest, forest, forest, grass, grass, grass, grass],
-            [grass, grass, grass, grass, mountain, grass, grass, grass, grass, forest, forest, forest, forest, grass, grass, grass],
-            [grass, grass, grass, grass, grass, mountain, mountain, grass, grass, grass, forest, forest, grass, grass, grass, grass],
-            [mountain, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass],
-            [mountain, mountain, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass],
-            [mountain, mountain, mountain, grass, grass, grass, grass, grass, grass, grass, building, grass, building, grass, grass, grass],
-            [mountain, mountain, mountain, grass, grass, grass, grass, building, building, grass, grass, grass, grass, grass, grass, forest],
-            [grass, mountain, mountain, mountain, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, forest],
-            [grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, forest, forest],
-            [grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, forest, forest, forest, forest],
-            [grass, grass, grass, grass, grass, grass, grass, grass, grass, forest, forest, forest, forest, forest, forest, forest],
-            [grass, grass, grass, grass, grass, forest, forest, forest, forest, forest, forest, forest, forest, forest, forest, forest],
-        ]
+        origin: [0, 0]
     }
 
     render() {
-        let x = this.state.origin[0];
-        let y = this.state.origin[1];
-        let width = 8;
-        let xMax = x + width;
-        let yMax = y + width;
+        
+        let x1 = this.state.origin[0];
+        let y1 = this.state.origin[1];
+        let width = 16;
+        let height = 10;
+        let x = 0;
+        let y = 0;
 
         const viewable = [];
 
-        while (y < yMax) {
-            while (x < xMax) {
-                let id = "x" + x + "y" + y;
-                viewable.push(<img id={id} src={this.state.map[y][x]} gridColumnStart={x+1} gridRowStart={y+1} />);
-                x++;
+        while (x < width) {
+            while (y < height) {
+                let id = "x" + (x+1) + "y" + (y+1);
+                viewable.push(
+                    <Tile 
+                    id={id}
+                    column={x+1}
+                    row={y+1}
+                    imageSource={map[x+x1][y+y1]}
+                    >
+                    </Tile>                    
+                ); 
+                y++;
             }
-            x = this.state.origin[0];
-            y++;
+            y = 0;
+            x++;
         }
 
         return (

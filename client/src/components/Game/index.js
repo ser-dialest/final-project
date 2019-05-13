@@ -5,7 +5,9 @@ import "./style.css";
 class Game extends Component {
     render() {
         return (
-            <Map></Map>
+            <div id="map-area">
+                <Map></Map>
+            </div>
         );
     }
 };

@@ -1,13 +1,11 @@
 import React, { Component } from  "react";
-import Map from "../Map";
+import Layout from "../Layout";
 import "./style.css";
 
 class Game extends Component {
     render() {
         return (
-            <div id="map-area">
-                <Map></Map>
-            </div>
+            <Layout></Layout>
         );
     }
 };

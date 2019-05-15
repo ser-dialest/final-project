@@ -6,8 +6,8 @@ import "./style.css";
 function Player(props) {
     return (
         <div
-            style={{gridColumnStart:`9`, 
-                gridRow:`5/span 2`,
+            style={{gridColumnStart:`${props.playerGrid[0]}`, 
+                gridRow:`${props.playerGrid[1]-1}/span 2`,
             }}
             id="player"
             alt="player"

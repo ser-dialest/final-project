@@ -1,0 +1,29 @@
+#layout {
+    display: grid;
+    grid-template: 528px 1fr / 1fr 816px 1fr;
+    border: none;
+    width: 100vw;
+    height: 100vh;
+    /* z-index: 100; */
+}
+
+#map-area {
+    /* display: flex;
+    justify-content: center; */
+    position: relative;
+    top: -48px;
+    left: -48px;
+    z-index: 0;
+}
+
+.borders {
+    z-index: 100;
+    background: blue;
+    border: none;
+}
+
+#info {
+    z-index: 100;
+    background: beige;
+    border: none;
+}

@@ -11,26 +11,70 @@ class Map extends Component {
     };
 
     state = {
-        origin: [9, 6]
+        origin: [10, 7],
+        playerGrid: [10, 7],
+        playerMap: [10, 7]
     }
 
-    move(id) {
-        let column = Number(id.substring(1, id.indexOf("y")));
-        let row = Number(id.substring(id.indexOf("y")+1));
-        console.log(column, row);
-        if (column >= 9 && column <= 39 && row >= 6 && row <= 42) {    
-            this.setState({origin: [column, row]});
-        };
+    move(gridX, gridY, mapX, mapY) {
+        this.setState({playerMap: [mapX, mapY]});
+        let playerGrid = [];
+        let origin = []
+        // console.log(gridX, gridY, mapX, mapY);
+        // determine where camera position is relative to the x-axis
+        if (mapX < 10) {
+            origin.push(10);
+            playerGrid.push(mapX);
+        }
+        else if (mapX > 38) {
+            origin.push(38);
+            playerGrid.push(19-(48-(mapX+1)));
+        }
+        else {
+            origin.push(mapX);
+            playerGrid.push(10);
+        }
+        // determine where camera position is relative to the y-axis
+        if (mapY < 7) {
+            origin.push(7);
+            playerGrid.push(mapY);
+        }
+        else if (mapY > 41) {
+            origin.push(41);
+            playerGrid.push(13-(48-(mapY+1)));
+        }
+        else {
+            origin.push(mapY);
+            playerGrid.push(7);
+        }
+        console.log(playerGrid, origin);
+        this.setState({origin: origin, playerGrid: playerGrid});
+        // this.setState({player: [column, row]}, 
+        //     () => {
+        //         if (column >= 9 && column <= 39 && row >= 6 && row <= 42) {
+        //             this.setState({origin: [column, row]});
+        //         };
+        //     }
+        // );
+
+        // function cameraMove(column, row) {
+        //     if (column >= 9 && column <= 39 && row >= 6 && row <= 42) {    
+        //         this.setState({origin: [column, row]});
+        //     };
+        // };
+        
     };
 
     render() {
-        console.log(this.state.origin);
+        // Cartesian counters
         let x = 0;
         let y = 0;
+        // map center
         let x1 = this.state.origin[0];
         let y1 = this.state.origin[1];
-        let width = 17;
-        let height = 11;
+        // map size
+        let width = 19;
+        let height = 13;
         let widthHalf = (width - 1) / 2;
         let heightHalf = (height -1) /2;
 
@@ -38,14 +82,20 @@ class Map extends Component {
 
         while (x < width) {
             while (y < height) {
-                let id = "x" + (x+x1-widthHalf) + "y" + (y+y1-heightHalf);
+                let gridX = x+1;
+                let gridY = y+1
+                let mapX = x+x1-widthHalf;
+                let mapY = y+y1-heightHalf;
+                let id = "x" + gridX + "y" + gridY;
+                
                 viewable.push(
                     <Tile 
                     id={id}
-                    column={x+1}
-                    row={y+1}
-                    imageSource={map[x+x1-widthHalf][y+y1-heightHalf]}
-                    move={() => this.move(id)}
+                    key={id}
+                    column={gridX}
+                    row={gridY}
+                    imageSource={map[mapX-1][mapY-1]}
+                    move={() => this.move(gridX, gridY, mapX, mapY)}
                     >
                     </Tile>                 
                 ); 
@@ -59,8 +109,7 @@ class Map extends Component {
             <div id="map">
                 {viewable}
                 <Player
-                    // column={this.state.origin[0]}
-                    // row={this.state.origin[1]}
+                    playerGrid={this.state.playerGrid}
                 >
                 </Player>
             </div>

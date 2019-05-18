@@ -35,10 +35,11 @@ class Tile extends Component {
                     style={{
                         top:`${this.props.top}px`,
                         left:`${this.props.left}px`,
-                        position:"relative"
+                        position:"relative",
+                        // display: "inline"
                     }}
                 />
-                <img
+                {/* <img
                     className="cursor"
                     key={this.props.id + "cursor"}
                     src={highlight}
@@ -51,7 +52,7 @@ class Tile extends Component {
                         zIndex:"1"
                     }}
 
-                />
+                /> */}
             </div>
         );
     };

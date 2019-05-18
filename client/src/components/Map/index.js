@@ -69,56 +69,43 @@ class Map extends Component {
             if (direction[1] !== 0) { mapMove = true; }
         }
         
-        const mapSlide = (timestamp) => {
-            if (t < 24) {
-                console.log("map", t)
+        const playerWalking = (timestamp) => {
+            if (t < animationLength) {
                 t++;
-                if (t % 2 === 0) {
-                    this.setState({tilePos: [this.state.tilePos[0]-(direction[0]*4), this.state.tilePos[1]-(direction[1]*4)]}, 
-                        () => requestAnimationFrame(mapSlide)
-                    );
+
+                if (t % framesPerTick === 0) {
+                    if (mapMove) {
+                        this.setState({tilePos: [this.state.tilePos[0]-(direction[0]*pixelsPerTick), this.state.tilePos[1]-(direction[1]*pixelsPerTick)]}, 
+                            () => requestAnimationFrame(playerWalking)
+                        );
+                    }
+                    else {
+                        this.setState({playerPos: [this.state.playerPos[0]+(direction[0]*pixelsPerTick), this.state.playerPos[1]+(direction[1]*pixelsPerTick)]}, 
+                            () => requestAnimationFrame(playerWalking)
+                        );
+                    }
                 }
-                else { requestAnimationFrame(mapSlide) }
+                else { requestAnimationFrame(playerWalking) }
             }
             else {
                 // lock in new map position
-                this.setState({origin: origin, playerGrid: playerGrid, playerMap: playerStep, tilePos: [0,0] }, () => {
+                this.setState({origin: origin, playerGrid: playerGrid, playerMap: playerStep, tilePos: [0,0], playerPos: [0,0] }, () => {
                     delta[0] -= direction[0];
                     delta[1] -= direction[1];
-                    console.log(this.state.playerMap);
                     this.path(delta);
                 });
             }
         };
 
-        const playerWalk = (timestamp) => {
-            if (t < 24) {
-                t++;
-                console.log("player", t)
-                if (t % 2 === 0) {
-                    this.setState({playerPos: [this.state.playerPos[0]+(direction[0]*4), this.state.playerPos[1]+(direction[1]*4)]}, 
-                        () => requestAnimationFrame(playerWalk)
-                    );
-                }
-                else { requestAnimationFrame(playerWalk) }
-            }
-            else {
-                // lock in new map position
-                this.setState({origin: origin, playerGrid: playerGrid, playerMap: playerStep, playerPos: [0,0] }, () => {
-                    delta[0] -= direction[0];
-                    delta[1] -= direction[1];
-                    console.log(this.state.playerMap);
-                    this.path(delta);
-                });
-            }
-        };
-
-        // animation
+        // animation variables
         let t = 0;
-        console.log(mapMove);
-        if (mapMove) { requestAnimationFrame(mapSlide) }
-        else { requestAnimationFrame(playerWalk) };
-    };
+        let tileWidth = 48;
+        let pixelsPerTick = 4;
+        let framesPerTick = 2;
+        let animationLength = (tileWidth/pixelsPerTick)*framesPerTick ; 
+        
+        requestAnimationFrame(playerWalking)
+    }
 
     move(gridX, gridY, mapX, mapY) {
         let delta = [mapX - this.state.playerMap[0], mapY - this.state.playerMap[1]];
@@ -172,7 +159,6 @@ class Map extends Component {
                     moveFunc = () => this.move(gridX, gridY, mapX, mapY);
                 }
 
-                console.log(moveFunc);
                 viewable.push(
                     <Tile 
                     id={id}

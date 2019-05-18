@@ -23,7 +23,7 @@ class Map extends Component {
         let origin = []
         let mapMove;
         // determine where camera position is relative to the x-axis
-        if (playerStep[0] < 10) {
+        if (playerStep[0] <= 10) {
             origin.push(10);
             playerGrid.push(playerStep[0]);
             if (direction[0] !== 0) {
@@ -31,7 +31,7 @@ class Map extends Component {
                 else { mapMove = true };
             }
         }
-        else if (playerStep[0] > 38) {
+        else if (playerStep[0] >= 38) {
             origin.push(38);
             playerGrid.push(19-(48-(playerStep[0]+1)));
             if (direction[0] !== 0) {
@@ -47,7 +47,7 @@ class Map extends Component {
             }
         }
         // determine where camera position is relative to the y-axis
-        if (playerStep[1] < 7) {
+        if (playerStep[1] <= 7) {
             origin.push(7);
             playerGrid.push(playerStep[1]);
             if (direction[1] !== 0) {
@@ -55,7 +55,7 @@ class Map extends Component {
                 else { mapMove = true };
             }
         }
-        else if (playerStep[1] > 41) {
+        else if (playerStep[1] >= 41) {
             origin.push(41);
             playerGrid.push(13-(48-(playerStep[1]+1)));
             if (direction[1] !== 0) {

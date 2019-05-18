@@ -1,5 +1,7 @@
 import React from "react";
 import Map from "../Map";
+import User from "../User";
+import Data from "../Data";
 import "./style.css";
 
 function Layout(props) {
@@ -11,7 +13,10 @@ function Layout(props) {
             </div>
             <div className="borders"></div>
             <div className="borders"></div>
-            <div id="info"></div>
+            <div id="info">
+                <User></User>
+                <Data></Data>
+            </div>
             <div className="borders"></div>
         </div>
     )

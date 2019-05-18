@@ -11,9 +11,9 @@ class Map extends Component {
         playerGrid: [10, 7],
         playerMap: [10, 7],
         tilePos: [0, 0],
-        playerPos: [0, 0]
+        playerPos: [0, 0],
+        moving: false
     }
-
 
     step(direction, delta) {
         // position of player after step
@@ -122,7 +122,7 @@ class Map extends Component {
 
     move(gridX, gridY, mapX, mapY) {
         let delta = [mapX - this.state.playerMap[0], mapY - this.state.playerMap[1]];
-        this.path(delta);
+        this.setState({moving: true}, () => this.path(delta));
     }
 
     path(delta) {
@@ -138,10 +138,14 @@ class Map extends Component {
                 else { direction = [0, -1] } // north
             }
             this.step(direction, delta);
-        };
+        }
+        else {
+            this.setState({moving: false});
+        }
     };
 
     render() {
+        // x and y are reversed somehow. I will have to look at it when I update the map.
         // Cartesian counters
         let x = 0;
         let y = 0;
@@ -163,7 +167,12 @@ class Map extends Component {
                 let mapX = x+x1-widthHalf;
                 let mapY = y+y1-heightHalf;
                 let id = "x" + gridX + "y" + gridY;
-                
+                let moveFunc;
+                if (!this.state.moving) {
+                    moveFunc = () => this.move(gridX, gridY, mapX, mapY);
+                }
+
+                console.log(moveFunc);
                 viewable.push(
                     <Tile 
                     id={id}
@@ -174,7 +183,7 @@ class Map extends Component {
                     top={this.state.tilePos[1]}
                     left={this.state.tilePos[0]}
                     imageSource={map[mapX-1][mapY-1]}
-                    move={() => this.move(gridX, gridY, mapX, mapY)}
+                    move={moveFunc}
                     >
                     </Tile>                 
                 ); 

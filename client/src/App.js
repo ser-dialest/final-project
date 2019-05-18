@@ -4,7 +4,7 @@ import SignUp from "./pages/SignUp";
 // import Detail from "./pages/Detail";
 // import NoMatch from "./pages/NoMatch";
 // import Nav from "./components/Nav";
-import Game from "./components/Game"
+import Game from "./pages/Game"
 
 function App() {
   return (

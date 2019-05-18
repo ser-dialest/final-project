@@ -1,6 +1,5 @@
 import React, { Component } from  "react";
-import Layout from "../Layout";
-import "./style.css";
+import Layout from "../components/Layout";
 
 class Game extends Component {
     render() {

@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import "./style.css";
 import highlight from "./Highlight3.png"
 
 class Tile extends Component {
@@ -7,7 +8,7 @@ class Tile extends Component {
     };
 
     hoverOn() {
-        this.setState({cursor:"inline"});
+        this.setState({cursor:"inline-grid"});
     };
 
     hoverOff() {
@@ -36,23 +37,20 @@ class Tile extends Component {
                         top:`${this.props.top}px`,
                         left:`${this.props.left}px`,
                         position:"relative",
-                        // display: "inline"
+                        display: "inline-grid"
                     }}
                 />
-                {/* <img
+                <img
                     className="cursor"
                     key={this.props.id + "cursor"}
                     src={highlight}
                     alt=""
                     style={{
                         display:this.state.cursor,
-                        position:"absolute",
-                        // top:"0",
-                        // left:"0",
-                        zIndex:"1"
+                        
                     }}
 
-                /> */}
+                />
             </div>
         );
     };

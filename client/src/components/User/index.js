@@ -42,17 +42,24 @@ class User extends Component {
             userContents = <div>
                 <p>Welcome, {this.state.userName}!</p>
                 <br />
-                <button>Save</button>
-                <button>Load</button>
+                <button onClick={() => this.save()}>Save</button>
+                <button onClick={() => this.load()}>Load</button>
             </div>;
         } else {
             userContents = <div>
                 <p>Log in or Sign up to save!</p>
                 <br />
-                <button>Log In</button>
-                <button>Sign Up</button>
+                <button onClick={() => this.logIn()}>Log In</button>
+                <button onClick={() => this.signUp()}>Sign Up</button>
                 <br />
             </div>
+
+            // We're going to define all the above functions in the Layout.
+            // Convert this compnent to functional
+            // signup & login become logIn(new) and logIn(return)
+            // sa ve and load stay passed in
+            // user name and loggedIn become props passed from Layout
+            // Layout becomes class extension with a signup component that appears conditionally
         }
         return (
             <div>

@@ -8,7 +8,7 @@ require("dotenv").config();
 // =============================================================
 module.exports = {
   validateToken: function(req, res) {
-    return jwt.verify(req.body.token, 'shhhhh', function(err, decoded) {
+    return jwt.verify(req.body.token, process.env.JWT_SECRET, function(err, decoded) {
       if (err) {
         return res.status(400).send({ msg: 'Bad token' });
       }
@@ -22,7 +22,7 @@ module.exports = {
 
       bcrypt.compare(req.body.password, u.password, function(err, bRes) {
         if (!bRes) res.status(400).send({ msg: 'Invalid Username or Password' });
-        var token = jwt.sign({ email: u.email }, 'shhhhh');
+        var token = jwt.sign({ email: u.email }, process.env.JWT_SECRET);
         res.json({ email: u.email, token: token });
       });
     });
@@ -54,7 +54,7 @@ module.exports = {
               email: "" || req.body.email,
               password: hash,
             }).then(function(user) {
-              var token = jwt.sign({ username: user.username }, 'shhhhh');
+              var token = jwt.sign({ username: user.username }, process.env.JWT_SECRET);
               res.json({ username: user.username, token: token });
             });
           });

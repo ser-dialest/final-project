@@ -107,7 +107,7 @@ class Map extends Component {
         requestAnimationFrame(playerWalking)
     }
 
-    move(gridX, gridY, mapX, mapY) {
+    move(mapX, mapY) {
         let delta = [mapX - this.state.playerMap[0], mapY - this.state.playerMap[1]];
         this.setState({moving: true}, () => this.path(delta));
     }
@@ -133,50 +133,36 @@ class Map extends Component {
 
     render() {
         // x and y are reversed somehow. I will have to look at it when I update the map.
-        // Cartesian counters
-        let x = 0;
-        let y = 0;
-        // map center
-        let x1 = this.state.origin[0];
-        let y1 = this.state.origin[1];
-        // map size
-        let width = 19;
-        let height = 13;
-        let widthHalf = (width - 1) / 2;
-        let heightHalf = (height -1) /2;
+        const width = 19;
+        const height = 13;
 
         const viewable = [];
 
-        while (x < width) {
-            while (y < height) {
-                let gridX = x+1;
-                let gridY = y+1
-                let mapX = x+x1-widthHalf;
-                let mapY = y+y1-heightHalf;
-                let id = "x" + gridX + "y" + gridY;
+        for (let x = 0;  x < width; x++) {
+            for (let y = 0; y < height; y++) {
+                let mapX = x + this.state.origin[0] - ((width - 1) / 2);
+                let mapY = y + this.state.origin[1] - ((height - 1) /2);
+                let id = "x" + (x + 1) + "y" + (y + 1);
                 let moveFunc;
                 if (!this.state.moving) {
-                    moveFunc = () => this.move(gridX, gridY, mapX, mapY);
+                    moveFunc = () => this.move(mapX, mapY);
                 }
 
                 viewable.push(
                     <Tile 
-                    id={id}
-                    key={id}
-                    className="tile"
-                    column={gridX}
-                    row={gridY}
-                    top={this.state.tilePos[1]}
-                    left={this.state.tilePos[0]}
-                    imageSource={map[mapX-1][mapY-1]}
-                    move={moveFunc}
+                        id={id}
+                        key={id}
+                        className="tile"
+                        column={x+1}
+                        row={y+1}
+                        top={this.state.tilePos[1]}
+                        left={this.state.tilePos[0]}
+                        imageSource={map[mapX-1][mapY-1]}
+                        move={moveFunc}
                     >
                     </Tile>                 
                 ); 
-                y++;
             }
-            y = 0;
-            x++;
         }
 
         return (

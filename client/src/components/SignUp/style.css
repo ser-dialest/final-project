@@ -1,0 +1,10 @@
+#sign-in {
+    position: relative;
+    top: 48px;
+    width: 720px;
+    height: 432px;
+    z-index: 250;
+    background: gray;
+    justify-content: center;
+    flex-direction: column;
+}

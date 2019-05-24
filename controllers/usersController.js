@@ -29,16 +29,17 @@ module.exports = {
   },
 
   signup: function(req, res) {
+    console.log(req.body);
     if (req.body.email) {
       let regex = RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
-      console.log(regex.test(String(req.body.email).toLowerCase()));
+      console.log(regex.test(String(req.body.email).toLowerCase()), "e-mail");
       if (!regex.test(String(req.body.email).toLowerCase())) {
         return res.status(400).send({msg: "Invalid Email Address"})
       }
     }
     if (req.body.password) {
       let regex = RegExp(/^(?=.{8,})(?=.*[0-9])(?=.*[A-Za-z])/);
-      console.log(regex.test(String(req.body.password)));
+      console.log(regex.test(String(req.body.password)), "password");
       if (!regex.test(String(req.body.password))) {
         return res.status(400).send({msg: "Password must contain letters and numbers and be at least 8 characters long."})
       }

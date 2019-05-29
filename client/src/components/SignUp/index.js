@@ -69,7 +69,9 @@ class SignUp extends Component {
     render() {
         let contents = [];
         contents.push(
-            <label for="username">{this.state.usernameLabel}</label>
+            <label key="usernameLabel" htmlFor="username">
+                {this.state.usernameLabel}
+            </label>
         );
         contents.push(
             <input
@@ -81,7 +83,9 @@ class SignUp extends Component {
         );
         if (this.props.createUser) {
             contents.push(
-                <label for="email">{this.state.emailLabel}</label>
+                <label key="emailLabel" htmlFor="email">
+                    {this.state.emailLabel}
+                </label>
             );
             contents.push(
                 <input
@@ -93,7 +97,9 @@ class SignUp extends Component {
             );   
         };
         contents.push(
-            <label for="password">{this.state.passwordLabel}</label>
+            <label key="passwordLabel" htmlFor="password">
+                {this.state.passwordLabel}
+            </label>
         );
         contents.push(
             <input
@@ -105,7 +111,9 @@ class SignUp extends Component {
         );
         if (this.props.createUser) {
             contents.push(
-                <label for="confirm">{this.state.confirmLabel}</label>
+                <label key="confirmLabel" htmlFor="confirm">
+                    {this.state.confirmLabel}
+                </label>
             );
             contents.push(
                 <input

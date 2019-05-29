@@ -3,13 +3,12 @@ import Map from "../Map";
 import User from "../User";
 import Data from "../Data";
 import SignUp from "../SignUp";
-import axios from "axios";
 import "./style.css";
 
 class Layout extends Component {
     constructor(props) {
         super(props);
-        this.userAPI = this.userAPI.bind(this);
+        this.logInSuccess = this.logInSuccess.bind(this);
         this.state = {
             loggedIn: false,
             userName: "",
@@ -23,10 +22,8 @@ class Layout extends Component {
         this.setState({signingIn: "flex", createUser: signUp})
     }
 
-    userAPI(url, request) {
-        axios.post(url, request).then(response => {
-            this.setState({ loggedIn: true, userName: response.data.username, signingIn: "none" });
-        });
+    logInSuccess(username) {
+        this.setState({ loggedIn: true, userName: username, signingIn: "none" });
     }
 
     save() {
@@ -38,7 +35,7 @@ class Layout extends Component {
         alert("load");
         // Also don't know
     }
-    
+
     // We're going to define all the above functions in the Layout.
 
     render() {
@@ -47,7 +44,7 @@ class Layout extends Component {
                 <SignUp
                     display={this.state.signingIn}
                     createUser={this.state.createUser}
-                    userAPI={this.userAPI}
+                    logInSuccess={this.logInSuccess}
                 >
                 </SignUp>
                 <div id="layout">

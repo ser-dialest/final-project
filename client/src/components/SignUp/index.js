@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import "./style.css";
+import axios from "axios";
 
 class SignUp extends Component {
     state = {
@@ -61,7 +62,11 @@ class SignUp extends Component {
         };
 
         if (usernameValid && emailValid && passwordVaild && confirmValid) {
-            this.props.userAPI(url, submission);
+            axios.post(url, submission).then(response => { 
+                this.props.logInSuccess(response.data.username);
+            }).catch(() => {
+                this.setState({ usernameLabel: "Username or password incorrect.", passwordLabel: "Username or password incorrect."});
+            });
         };
     }
 

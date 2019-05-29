@@ -18,13 +18,18 @@ module.exports = {
   
   login: function(req, res) {
     db.User.findOne({ username: req.body.username }).then(u => {
-      if (!u) res.status(400).send({ msg: 'Invalid Username or Password' });
-
-      bcrypt.compare(req.body.password, u.password, function(err, bRes) {
-        if (!bRes) res.status(400).send({ msg: 'Invalid Username or Password' });
-        var token = jwt.sign({ username: u.username }, process.env.JWT_SECRET);
-        res.json({ username: u.username, token: token });
-      });
+      if (u === null) {
+        res.status(400).send({ msg: 'Invalid Username or Password' });
+      } else {
+        bcrypt.compare(req.body.password, u.password, function(err, bRes) {
+          if (!bRes) {
+            res.status(400).send({ msg: 'Invalid Username or Password' });
+          } else {
+            var token = jwt.sign({ username: u.username }, process.env.JWT_SECRET);
+            res.json({ username: u.username, token: token });
+          };
+        });
+      };
     });
   },
 

@@ -9,6 +9,7 @@ class Layout extends Component {
     constructor(props) {
         super(props);
         this.logInSuccess = this.logInSuccess.bind(this);
+        this.hideSignIn = this.hideSignIn.bind(this);
         this.state = {
             loggedIn: false,
             userName: "",
@@ -36,7 +37,8 @@ class Layout extends Component {
         // Also don't know
     }
 
-    hideSignIn() {
+    hideSignIn(event) {
+        event.preventDefault();
         this.setState({ signingIn: "none" });
     }
 

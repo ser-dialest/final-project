@@ -36,7 +36,9 @@ class Layout extends Component {
         // Also don't know
     }
 
-    // We're going to define all the above functions in the Layout.
+    hideSignIn() {
+        this.setState({ signingIn: "none" });
+    }
 
     render() {
         return (
@@ -45,6 +47,7 @@ class Layout extends Component {
                     display={this.state.signingIn}
                     createUser={this.state.createUser}
                     logInSuccess={this.logInSuccess}
+                    hide={this.hideSignIn}
                 >
                 </SignUp>
                 <div id="layout">

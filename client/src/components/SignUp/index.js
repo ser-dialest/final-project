@@ -46,6 +46,7 @@ class SignUp extends Component {
                 this.setState({ emailLabel: "E-mail Address:"});
             };
         };
+
         if (this.props.createUser) {
             let passwordRegex = RegExp(/^(?=.{8,})(?=.*[0-9])(?=.*[A-Za-z])/);
             if (!passwordRegex.test(String(submission.password))) { 
@@ -72,11 +73,13 @@ class SignUp extends Component {
 
     render() {
         let contents = [];
+
         contents.push(
             <label key="usernameLabel" htmlFor="username">
                 {this.state.usernameLabel}
             </label>
         );
+
         contents.push(
             <input
                 name="username"
@@ -85,12 +88,14 @@ class SignUp extends Component {
                 value={this.state.username} onChange={this.handleChange}
             />
         );
+
         if (this.props.createUser) {
             contents.push(
                 <label key="emailLabel" htmlFor="email">
                     {this.state.emailLabel}
                 </label>
             );
+
             contents.push(
                 <input
                     name="email"
@@ -100,11 +105,13 @@ class SignUp extends Component {
                 />
             );   
         };
+
         contents.push(
             <label key="passwordLabel" htmlFor="password">
                 {this.state.passwordLabel}
             </label>
         );
+
         contents.push(
             <input
                 name="password"
@@ -113,12 +120,14 @@ class SignUp extends Component {
                 value={this.state.password} onChange={this.handleChange}
             />
         );
+
         if (this.props.createUser) {
             contents.push(
                 <label key="confirmLabel" htmlFor="confirm">
                     {this.state.confirmLabel}
                 </label>
             );
+
             contents.push(
                 <input
                     name="confirm"
@@ -128,7 +137,11 @@ class SignUp extends Component {
                 />
             );
         };
+
         contents.push(<button onClick={this.handleFormSubmit} key="Submit">Submit</button>);
+
+        contents.push(<button onClick={this.props.hide} key="Back">Back</button>);
+
         return (
             <form
                 id="sign-in"
@@ -142,35 +155,4 @@ class SignUp extends Component {
 
 export default SignUp;
 
-// Load name upon login or signup
 // Hide button
-
-
-
-
-
-
-// function loginSubmit () {
-//     // What happens when you submit log in
-//     $("#login_submit").on("click", function(event) {
-//         event.preventDefault();
-//         // Create object from user input (name password)
-//         var login = {
-//             name: $("#user_name_login")
-//                 .val()
-//                 .trim(),
-//             password: $("#password_login")
-//                 .val()
-//                 .trim()
-//         };
-//         // User GET with that object based on object.name
-//         API.getUser(login.name);
-//         if (login.password === loginCheck.password) {
-//             localStorage.setItem("userId", login.id);
-//             alert("Welcome, " + login.name + "!");
-//         } else {
-//             alert("Username or password did not match.");
-//         }
-//         // GET fridge based on id
-//         // Set all the ingredients to their fridge values
-//     });

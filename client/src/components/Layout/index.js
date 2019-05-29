@@ -3,19 +3,30 @@ import Map from "../Map";
 import User from "../User";
 import Data from "../Data";
 import SignUp from "../SignUp";
+import axios from "axios";
 import "./style.css";
 
 class Layout extends Component {
-    state = {
-        loggedIn: false,
-        userName: "",
-        signingIn: "none",
-        createUser: false
+    constructor(props) {
+        super(props);
+        this.userAPI = this.userAPI.bind(this);
+        this.state = {
+            loggedIn: false,
+            userName: "",
+            signingIn: "none",
+            createUser: false
+        }
     }
 
     signIn(signUp) {
         console.log("sign up", signUp);
         this.setState({signingIn: "flex", createUser: signUp})
+    }
+
+    userAPI(url, request) {
+        axios.post(url, request).then(response => {
+            this.setState({ loggedIn: true, userName: response.data.username, signingIn: "none" });
+        });
     }
 
     save() {
@@ -36,6 +47,7 @@ class Layout extends Component {
                 <SignUp
                     display={this.state.signingIn}
                     createUser={this.state.createUser}
+                    userAPI={this.userAPI}
                 >
                 </SignUp>
                 <div id="layout">

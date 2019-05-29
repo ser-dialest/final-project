@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import axios from "axios";
 import "./style.css";
 
 class SignUp extends Component {
@@ -62,8 +61,8 @@ class SignUp extends Component {
         };
 
         if (usernameValid && emailValid && passwordVaild && confirmValid) {
-            axios.post(url, submission).then(response => console.log(response));
-        }
+            this.props.userAPI(url, submission);
+        };
     }
 
     render() {
@@ -137,6 +136,14 @@ class SignUp extends Component {
 }
 
 export default SignUp;
+
+// Load name upon login or signup
+// Hide button
+
+
+
+
+
 
 // function loginSubmit () {
 //     // What happens when you submit log in

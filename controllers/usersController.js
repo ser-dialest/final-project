@@ -22,8 +22,8 @@ module.exports = {
 
       bcrypt.compare(req.body.password, u.password, function(err, bRes) {
         if (!bRes) res.status(400).send({ msg: 'Invalid Username or Password' });
-        var token = jwt.sign({ email: u.email }, process.env.JWT_SECRET);
-        res.json({ email: u.email, token: token });
+        var token = jwt.sign({ username: u.username }, process.env.JWT_SECRET);
+        res.json({ username: u.username, token: token });
       });
     });
   },

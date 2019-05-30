@@ -7,6 +7,7 @@ import Player from "../Player"
 class Map extends Component {
 
     state = {
+        mapTravelCost: [],
         origin: [10, 7],
         playerGrid: [10, 7],
         playerMap: [10, 7],
@@ -15,6 +16,14 @@ class Map extends Component {
         moving: false
     }
 
+    // moving starts with this.move(destinationX, destinationY)
+    // this.move calculates travel distance to target (maybe unnecesary), calls path (a function which will be recalled in a cycle with step)
+    // Matt says that's probably wrong or unnecessary once the a* goes in
+    // path calculates the direction we're moving and then executes animation function, step
+    // step determines if the camera or player moves and handles the animation before kicking back to path, which determines the remaining distance and direction of the next step
+    // repeat until delta = [0,0]
+
+    // 
     step(direction, delta) {
         // position of player after step
         let playerStep = [this.state.playerMap[0] + direction[0], this.state.playerMap[1] + direction[1]];
@@ -130,6 +139,11 @@ class Map extends Component {
             this.setState({moving: false});
         }
     };
+
+    componentDidMount() {
+        let travelCosts = map.map( row => row.map( column => column.travelCost));        
+        this.setState({ mapTravelCost: travelCosts});
+    }
 
     render() {
         // x and y are reversed somehow. I will have to look at it when I update the map.

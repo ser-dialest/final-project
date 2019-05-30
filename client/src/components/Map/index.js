@@ -157,7 +157,7 @@ class Map extends Component {
                         row={y+1}
                         top={this.state.tilePos[1]}
                         left={this.state.tilePos[0]}
-                        imageSource={map[mapX-1][mapY-1]}
+                        imageSource={map[mapX-1][mapY-1].image}
                         move={moveFunc}
                     >
                     </Tile>                 

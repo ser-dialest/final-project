@@ -24,6 +24,7 @@ class Layout extends Component {
     }
 
     logInSuccess(username) {
+        // receive user data
         this.setState({ loggedIn: true, userName: username, signingIn: "none" });
     }
 

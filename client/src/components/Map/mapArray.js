@@ -1,7 +1,8 @@
-import grass from "./tiles/Grass3.png";
-import mountain from "./tiles/Mountain3.png";
-import building from "./tiles/Building3.png";
-import forest from "./tiles/Forest3.png";
+import { grass, mountain, building, forest } from "./tiles/tiles";
+// import grass from "./tiles/Grass3.png";
+// import mountain from "./tiles/Mountain3.png";
+// import building from "./tiles/Building3.png";
+// import forest from "./tiles/Forest3.png";
 
 export const map = [
     [grass, grass, grass, grass, grass, grass, grass, mountain, mountain, mountain, mountain, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass, grass],

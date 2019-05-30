@@ -65,6 +65,7 @@ class SignUp extends Component {
         if (usernameValid && emailValid && passwordVaild && confirmValid) {
             axios.post(url, submission).then(response => { 
                 this.props.logInSuccess(response.data.username);
+                // Pass save data as well
             }).catch(() => {
                 this.setState({ usernameLabel: "Username or password incorrect.", passwordLabel: "Username or password incorrect."});
             });
@@ -154,5 +155,3 @@ class SignUp extends Component {
 }
 
 export default SignUp;
-
-// Hide button

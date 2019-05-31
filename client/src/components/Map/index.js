@@ -2,7 +2,9 @@ import React, { Component } from  "react";
 import map from "./mapArray";
 import "./style.css";
 import Tile from "../Tile";
-import Player from "../Player"
+import Player from "../Player";
+// import aStar from "easy-astar";
+const aStar = require("easy-astar").easyAStar;
 
 class Map extends Component {
 
@@ -13,7 +15,8 @@ class Map extends Component {
         playerMap: [10, 7],
         tilePos: [0, 0],
         playerPos: [0, 0],
-        moving: false
+        moving: false,
+        playerFrame: 0
     }
 
     // moving starts with this.move(destinationX, destinationY)
@@ -83,6 +86,9 @@ class Map extends Component {
                 t++;
 
                 if (t % framesPerTick === 0) {
+                    if (t % (framesPerTick*4) === 0) {
+                        this.setState({ playerFrame: this.state.playerFrame + 48 });
+                    }
                     if (mapMove) {
                         this.setState({tilePos: [this.state.tilePos[0]-(direction[0]*pixelsPerTick), this.state.tilePos[1]-(direction[1]*pixelsPerTick)]}, 
                             () => requestAnimationFrame(playerWalking)
@@ -117,8 +123,24 @@ class Map extends Component {
     }
 
     move(mapX, mapY) {
-        let delta = [mapX - this.state.playerMap[0], mapY - this.state.playerMap[1]];
-        this.setState({moving: true}, () => this.path(delta));
+        // check if it is a walkable tile
+        if (this.state.mapTravelCost[mapX-1][mapY-1] === 0) {
+            // use easy-astar npm to generate array of coordinates to goal
+            const startPos = {x:this.state.playerMap[0], y:this.state.playerMap[1]};
+            const endPos = {x:mapX,y:mapY};
+
+            const path = aStar((x, y)=>{
+                if (this.state.mapTravelCost[x-1][y-1] === 0) {
+                    return true; // 0 means road
+                } else {
+                    return false; // 1 means wall
+                }
+            }, startPos, endPos);
+            console.log(path);
+
+            let delta = [mapX - this.state.playerMap[0], mapY - this.state.playerMap[1]];
+            this.setState({moving: true}, () => this.path(delta));
+        };
     }
 
     path(delta) {
@@ -136,13 +158,13 @@ class Map extends Component {
             this.step(direction, delta);
         }
         else {
-            this.setState({moving: false});
+            this.setState({moving: false, playerFrame: 0});
         }
     };
 
     componentDidMount() {
         let travelCosts = map.map( row => row.map( column => column.travelCost));        
-        this.setState({ mapTravelCost: travelCosts});
+        this.setState({ mapTravelCost: travelCosts}, () => console.log(this.state.mapTravelCost));
     }
 
     render() {
@@ -186,6 +208,7 @@ class Map extends Component {
                     playerGrid={this.state.playerGrid}
                     top={this.state.playerPos[1]}
                     left={this.state.playerPos[0]}
+                    frame={this.state.playerFrame}
                 >
                 </Player>
             </div>

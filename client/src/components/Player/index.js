@@ -11,11 +11,13 @@ function Player(props) {
                 gridRow:`${props.playerGrid[1]-1}/span 2`,
                 top:`${props.top}px`,
                 left:`${props.left}px`,
-                position:"relative"
+                position:"relative",
+                backgroundPositionX:`${props.frame}px`
             }}
             id="player"
             alt="player"
             key="player"
+
         >
         </div>
     );

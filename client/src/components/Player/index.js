@@ -12,7 +12,8 @@ function Player(props) {
                 top:`${props.top}px`,
                 left:`${props.left}px`,
                 position:"relative",
-                backgroundPositionX:`${props.frame}px`
+                backgroundPositionX:`${props.frame}px`,
+                transform: `scaleX(${props.direction})`
             }}
             id="player"
             alt="player"

@@ -16,7 +16,8 @@ class Map extends Component {
         tilePos: [0, 0],
         playerPos: [0, 0],
         moving: false,
-        playerFrame: 0
+        playerFrame: 0,
+        playerDirection: 1
     }
 
     // moving starts with this.move(destinationX, destinationY)
@@ -27,7 +28,7 @@ class Map extends Component {
     // repeat until delta = [0,0]
 
     // 
-    step(direction, delta) {
+    step(direction, path) {
         // position of player after step
         let playerStep = [this.state.playerMap[0] + direction[0], this.state.playerMap[1] + direction[1]];
         // calculation variables
@@ -104,11 +105,14 @@ class Map extends Component {
             }
             else {
                 // lock in new map position
-                this.setState({origin: origin, playerGrid: playerGrid, playerMap: playerStep, tilePos: [0,0], playerPos: [0,0] }, () => {
-                    delta[0] -= direction[0];
-                    delta[1] -= direction[1];
-                    this.path(delta);
-                });
+                this.setState({
+                    origin: origin, 
+                    playerGrid: playerGrid, 
+                    playerMap: playerStep, 
+                    tilePos: [0,0], 
+                    playerPos: [0,0] }, 
+                    () => this.direction(path)
+                );
             }
         };
 
@@ -128,34 +132,34 @@ class Map extends Component {
             // use easy-astar npm to generate array of coordinates to goal
             const startPos = {x:this.state.playerMap[0], y:this.state.playerMap[1]};
             const endPos = {x:mapX,y:mapY};
-
-            const path = aStar((x, y)=>{
+            const aStarPath = aStar((x, y)=>{
+                console.log([x-1],[y-1]);
                 if (this.state.mapTravelCost[x-1][y-1] === 0) {
                     return true; // 0 means road
                 } else {
                     return false; // 1 means wall
                 }
             }, startPos, endPos);
-            console.log(path);
-
-            let delta = [mapX - this.state.playerMap[0], mapY - this.state.playerMap[1]];
-            this.setState({moving: true}, () => this.path(delta));
+            console.log(aStarPath);
+            let path = aStarPath.map( element => [element.x, element.y]);
+            this.setState({moving: true}, () => this.direction(path));
         };
     }
 
-    path(delta) {
+    direction(path) {
         // direction array based on unit circle
-        if (delta[0] !== 0 || delta[1] !== 0) {
-            let direction = [];
-            if (Math.abs(delta[0]) >= Math.abs(delta[1])) {
-                if (delta[0] > 0) { direction = [1, 0] } // east
-                else { direction = [-1, 0] } // west
+        if (path.length > 1) {
+            let direction = [path[1][0] - path[0][0], path[1][1] - path[0][1]];
+            console.log(direction);
+            
+            path.shift();
+            if (direction[0] === 1) {
+                this.setState({playerDirection: 1}, () => this.step(direction, path))
+            } else if (direction[0] === -1) {
+                this.setState({playerDirection: -1}, () => this.step(direction, path))
+            } else {
+                this.step(direction, path);
             }
-            else {
-                if (delta[1] > 0) { direction = [0, 1] } // south
-                else { direction = [0, -1] } // north
-            }
-            this.step(direction, delta);
         }
         else {
             this.setState({moving: false, playerFrame: 0});
@@ -163,6 +167,8 @@ class Map extends Component {
     };
 
     componentDidMount() {
+        console.log(map[0]);
+        console.log(map[1]);
         let travelCosts = map.map( row => row.map( column => column.travelCost));        
         this.setState({ mapTravelCost: travelCosts}, () => console.log(this.state.mapTravelCost));
     }
@@ -209,6 +215,7 @@ class Map extends Component {
                     top={this.state.playerPos[1]}
                     left={this.state.playerPos[0]}
                     frame={this.state.playerFrame}
+                    direction={this.state.playerDirection}
                 >
                 </Player>
             </div>

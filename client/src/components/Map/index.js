@@ -170,6 +170,8 @@ class Map extends Component {
             let yVariance= Math.abs(Math.abs(x)-Math.abs(speed));
             for (let y = yVariance; y >= -yVariance; y--) {
                 let test = [start[0] + x, start[1] + y];
+                let outOfBounds = false;
+                if (x < 0 || x > 49 || y < 0 || y > 49) { outOfBounds = true };
                 let walkable = (this.state.mapTravelCost[test[0]][test[1]] === 0);
                 if (walkable) {
                     let testPath = aStar((x, y)=>{

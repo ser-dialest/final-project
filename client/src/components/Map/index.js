@@ -2,6 +2,7 @@ import React, { Component } from  "react";
 import map from "./mapArray";
 import "./style.css";
 import Tile from "../Tile";
+import playerRange from "./tiles/PlayerRange3.png";
 import Player from "../Player";
 // import aStar from "easy-astar";
 const aStar = require("easy-astar").easyAStar;
@@ -11,14 +12,16 @@ class Map extends Component {
     state = {
         mapTravelCost: map.map( row => row.map( column => column.travelCost)),
         moving: false,
-        inBattle: false,
-        playerPhase: false,
+        inBattle: true,
+        playerPhase: true,
+        selection: false,
         // camera center
         origin: [10, 7],
         // Where player is on the screen
         playerGrid: [10, 7],
         // Where player is on the map
         playerMap: [10, 7],
+        playerRange: [],
         // How far player has moved between squares
         playerPos: [0, 0],
         // Whether he faces left or right (1 = right, -1 = left)
@@ -183,7 +186,7 @@ class Map extends Component {
             for (let y = yVariance; y >= -yVariance; y--) {
                 let test = [start[0] + x, start[1] + y];
                 // check if out of bounds
-                if (test[0] < 0 || test[0] > 49 || test[1] < 0 || test[1] > 49) { continue };
+                if (test[0] < 1 || test[0] > 50 || test[1] < 1 || test[1] > 50) { continue };
                 // check if walkable
                 if (walkableMap[test[0]-1][test[1]-1] === 1) { continue };
                 // easyAStar objects
@@ -204,26 +207,54 @@ class Map extends Component {
         return range;
     }
 
+    inRange(position, range) {
+        let found = false;
+        for (let i = 0; i<range.length; i++) {
+            if (position[0] === range[i][0] && position[1] === range[i][1]) { found = true }
+        }
+        return found;
+    }
+
+
+
     render() {
         // x and y are reversed somehow. I will have to look at it when I update the map.
         const width = 19;
         const height = 13;
 
         const viewable = [];
-        let range = []
-        range = this.moveRange([7,7], 3);
-        if (this.state.playerPhase) {
-            range = this.moveRange(this.state.playerMap, this.state.player.speed);
-        }
+        // let range = []
+
+        // if (this.state.playerPhase && !this.state.moving) {
+        //     range = this.moveRange(this.state.playerMap, this.state.player.speed);
+        // }
 
         for (let x = 0;  x < width; x++) {
             for (let y = 0; y < height; y++) {
                 let mapX = x + this.state.origin[0] - ((width - 1) / 2);
                 let mapY = y + this.state.origin[1] - ((height - 1) /2);
                 let id = "x" + (x + 1) + "y" + (y + 1);
-                let moveFunc;
-                if (!this.state.moving && !this.state.inBattle) {
-                    moveFunc = () => this.move(mapX, mapY);
+                let clickFunc;
+                let imageSource = map[mapX-1][mapY-1].image;
+                if (!this.state.moving) {
+                    if (!this.state.inBattle) {
+                        clickFunc = () => this.move(mapX, mapY);
+                    } else if (this.state.inBattle && this.state.playerPhase) {
+                        if (!this.state.selection) {
+                            if ((x+1) === this.state.playerGrid[0] && (y+1) === this.state.playerGrid[1]) { 
+                                clickFunc = () => {
+                                    this.setState({ selection: true, playerRange: this.moveRange(this.state.playerMap, this.state.player.speed)});
+                                }
+                            }
+                        } else {
+                            if (this.inRange([mapX, mapY], this.state.playerRange)) {
+                                imageSource = playerRange;
+                                clickFunc = () => this.move(mapX, mapY);
+                            } else { 
+                                clickFunc = () => this.setState({ selection: false });
+                            }
+                        }
+                    }
                 }
                 
 
@@ -236,8 +267,8 @@ class Map extends Component {
                         row={y+1}
                         top={this.state.tilePos[1]}
                         left={this.state.tilePos[0]}
-                        imageSource={map[mapX-1][mapY-1].image}
-                        move={moveFunc}
+                        imageSource={imageSource}
+                        click={clickFunc}
                     >
                     </Tile>                 
                 ); 

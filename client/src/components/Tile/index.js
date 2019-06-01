@@ -27,7 +27,7 @@ class Tile extends Component {
                 }}
                 onMouseEnter={() => this.hoverOn()}
                 onMouseLeave={() => this.hoverOff()}
-                onClick={this.props.move}
+                onClick={this.props.click}
             >
                 <img 
                     key={this.props.id + "img"} 

@@ -1,3 +1,16 @@
+@font-face {
+    font-family: 'safe_hamletregular';
+    src: url('safe-hamlet-webfont.woff2') format('woff2'),
+         url('safe-hamlet-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    font-family: 'safe_hamletregular';
+    font-size: 24px;
+}
+
 #page {
     display: flex;
     justify-content: center;

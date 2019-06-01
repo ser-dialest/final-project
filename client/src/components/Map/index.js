@@ -151,7 +151,6 @@ class Map extends Component {
                     return false; // 1 means wall
                 }
             }, startPos, endPos);
-            console.log(aStarPath);
             let path = aStarPath.map( element => [element.x, element.y]);
             this.setState({moving: true}, () => this.direction(path));
         };
@@ -179,12 +178,10 @@ class Map extends Component {
     moveRange(start, speed) {
         let range = [];
         let walkableMap = this.state.mapTravelCost;
-        // debugger;
         for (let x = speed; x >= -speed; x--) {
             let yVariance= Math.abs(Math.abs(x)-Math.abs(speed));
             for (let y = yVariance; y >= -yVariance; y--) {
                 let test = [start[0] + x, start[1] + y];
-                // console.log(test);
                 // check if out of bounds
                 if (test[0] < 0 || test[0] > 49 || test[1] < 0 || test[1] > 49) { continue };
                 // check if walkable
@@ -207,24 +204,17 @@ class Map extends Component {
         return range;
     }
 
-    componentDidMount() {
-        // let travelCosts = map.map( row => row.map( column => column.travelCost));        
-        // this.setState({ mapTravelCost: travelCosts}, () => console.log(this.state.mapTravelCost));
-    }
-
     render() {
         // x and y are reversed somehow. I will have to look at it when I update the map.
         const width = 19;
         const height = 13;
 
         const viewable = [];
-        // console.log(this.state.mapTravelCost);
         let range = []
         range = this.moveRange([7,7], 3);
         if (this.state.playerPhase) {
             range = this.moveRange(this.state.playerMap, this.state.player.speed);
         }
-        console.log(range);
 
         for (let x = 0;  x < width; x++) {
             for (let y = 0; y < height; y++) {

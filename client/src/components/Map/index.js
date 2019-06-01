@@ -133,7 +133,6 @@ class Map extends Component {
             const startPos = {x:this.state.playerMap[0], y:this.state.playerMap[1]};
             const endPos = {x:mapX,y:mapY};
             const aStarPath = aStar((x, y)=>{
-                console.log([x-1],[y-1]);
                 if (this.state.mapTravelCost[x-1][y-1] === 0) {
                     return true; // 0 means road
                 } else {
@@ -149,9 +148,7 @@ class Map extends Component {
     direction(path) {
         // direction array based on unit circle
         if (path.length > 1) {
-            let direction = [path[1][0] - path[0][0], path[1][1] - path[0][1]];
-            console.log(direction);
-            
+            let direction = [path[1][0] - path[0][0], path[1][1] - path[0][1]];            
             path.shift();
             if (direction[0] === 1) {
                 this.setState({playerDirection: 1}, () => this.step(direction, path))
@@ -166,9 +163,41 @@ class Map extends Component {
         }
     };
 
+    // determine if it can be moved to within a turn
+    moveRange(start, speed) {
+        let range = [];
+        for (let x = speed; x >= -speed; x--) {
+            let yVariance= Math.abs(Math.abs(x)-Math.abs(speed));
+            for (let y = yVariance; y >= -yVariance; y--) {
+                let test = [start[0] + x, start[1] + y];
+                let walkable = (this.state.mapTravelCost[test[0]][test[1]] === 0);
+                if (walkable) {
+                    let testPath = aStar((x, y)=>{
+                        if (this.state.mapTravelCost[x-1][y-1] === 0) {
+                            return true; // 0 means road
+                        } else {
+                            return false; // 1 means wall
+                        }
+                    }, start, test);
+                    if (speed < testPath.length) {
+                        range.push(test);
+                    }
+                }
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
     componentDidMount() {
-        console.log(map[0]);
-        console.log(map[1]);
         let travelCosts = map.map( row => row.map( column => column.travelCost));        
         this.setState({ mapTravelCost: travelCosts}, () => console.log(this.state.mapTravelCost));
     }

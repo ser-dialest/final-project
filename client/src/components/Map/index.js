@@ -9,15 +9,27 @@ const aStar = require("easy-astar").easyAStar;
 class Map extends Component {
 
     state = {
-        mapTravelCost: [],
-        origin: [10, 7],
-        playerGrid: [10, 7],
-        playerMap: [10, 7],
-        tilePos: [0, 0],
-        playerPos: [0, 0],
+        mapTravelCost: map.map( row => row.map( column => column.travelCost)),
         moving: false,
+        inBattle: false,
+        playerPhase: false,
+        // camera center
+        origin: [10, 7],
+        // Where player is on the screen
+        playerGrid: [10, 7],
+        // Where player is on the map
+        playerMap: [10, 7],
+        // How far player has moved between squares
+        playerPos: [0, 0],
+        // Whether he faces left or right (1 = right, -1 = left)
+        playerDirection: 1,
+        // What frame of animation he is in (shift of background)
         playerFrame: 0,
-        playerDirection: 1
+        // How far tile has moved from side
+        tilePos: [0, 0],
+        player: {
+            speed: 4
+        }
     }
 
     // moving starts with this.move(destinationX, destinationY)
@@ -166,42 +178,38 @@ class Map extends Component {
     // determine if it can be moved to within a turn
     moveRange(start, speed) {
         let range = [];
+        let walkableMap = this.state.mapTravelCost;
+        // debugger;
         for (let x = speed; x >= -speed; x--) {
             let yVariance= Math.abs(Math.abs(x)-Math.abs(speed));
             for (let y = yVariance; y >= -yVariance; y--) {
                 let test = [start[0] + x, start[1] + y];
-                let outOfBounds = false;
-                if (x < 0 || x > 49 || y < 0 || y > 49) { outOfBounds = true };
-                let walkable = (this.state.mapTravelCost[test[0]][test[1]] === 0);
-                if (walkable && !outOfBounds) {
-                    let testPath = aStar((x, y)=>{
-                        if (this.state.mapTravelCost[x-1][y-1] === 0) {
-                            return true; // 0 means road
-                        } else {
-                            return false; // 1 means wall
-                        }
-                    }, start, test);
-                    if (speed < testPath.length) {
-                        range.push(test);
+                // console.log(test);
+                // check if out of bounds
+                if (test[0] < 0 || test[0] > 49 || test[1] < 0 || test[1] > 49) { continue };
+                // check if walkable
+                if (walkableMap[test[0]-1][test[1]-1] === 1) { continue };
+                // easyAStar objects
+                const startPos = {x:start[0], y:start[1]};
+                const endPos = {x:test[0],y:test[1]};
+                let testPath = aStar((x, y)=>{
+                    if (walkableMap[x-1][y-1] === 0) {
+                        return true; // 0 means road
+                    } else {
+                        return false; // 1 means wall
                     }
+                }, startPos, endPos);
+                if (speed >= (testPath.length-1)) {
+                    range.push(test);
                 }
             }
         }
+        return range;
     }
 
-
-
-
-
-
-
-
-
-
-
     componentDidMount() {
-        let travelCosts = map.map( row => row.map( column => column.travelCost));        
-        this.setState({ mapTravelCost: travelCosts}, () => console.log(this.state.mapTravelCost));
+        // let travelCosts = map.map( row => row.map( column => column.travelCost));        
+        // this.setState({ mapTravelCost: travelCosts}, () => console.log(this.state.mapTravelCost));
     }
 
     render() {
@@ -210,6 +218,13 @@ class Map extends Component {
         const height = 13;
 
         const viewable = [];
+        // console.log(this.state.mapTravelCost);
+        let range = []
+        range = this.moveRange([7,7], 3);
+        if (this.state.playerPhase) {
+            range = this.moveRange(this.state.playerMap, this.state.player.speed);
+        }
+        console.log(range);
 
         for (let x = 0;  x < width; x++) {
             for (let y = 0; y < height; y++) {
@@ -217,9 +232,10 @@ class Map extends Component {
                 let mapY = y + this.state.origin[1] - ((height - 1) /2);
                 let id = "x" + (x + 1) + "y" + (y + 1);
                 let moveFunc;
-                if (!this.state.moving) {
+                if (!this.state.moving && !this.state.inBattle) {
                     moveFunc = () => this.move(mapX, mapY);
                 }
+                
 
                 viewable.push(
                     <Tile 

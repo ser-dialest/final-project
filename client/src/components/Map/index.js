@@ -173,7 +173,7 @@ class Map extends Component {
                 let outOfBounds = false;
                 if (x < 0 || x > 49 || y < 0 || y > 49) { outOfBounds = true };
                 let walkable = (this.state.mapTravelCost[test[0]][test[1]] === 0);
-                if (walkable) {
+                if (walkable && !outOfBounds) {
                     let testPath = aStar((x, y)=>{
                         if (this.state.mapTravelCost[x-1][y-1] === 0) {
                             return true; // 0 means road

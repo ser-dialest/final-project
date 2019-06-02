@@ -1,9 +1,10 @@
 import React, { Component } from  "react";
-import map from "./mapArray";
-import "./style.css";
 import Tile from "../Tile";
-import playerRange from "./tiles/PlayerRange3.png";
+import ActionMenu from "../ActionMenu"
 import Player from "../Player";
+import map from "./mapArray";
+import playerRange from "./tiles/PlayerRange3.png";
+import "./style.css";
 // import aStar from "easy-astar";
 const aStar = require("easy-astar").easyAStar;
 
@@ -15,12 +16,17 @@ class Map extends Component {
         inBattle: true,
         playerPhase: true,
         selection: false,
+        actionMenu: false,
         // camera center
         origin: [10, 7],
         // Where player is on the screen
         playerGrid: [10, 7],
         // Where player is on the map
         playerMap: [10, 7],
+        // Where the camera and player were before moving in battle
+        confirmOrigin: [],
+        confirmPlayerGrid: [],
+        confirmPlayerMap: [],
         playerRange: [],
         // How far player has moved between squares
         playerPos: [0, 0],
@@ -30,6 +36,7 @@ class Map extends Component {
         playerFrame: 0,
         // How far tile has moved from side
         tilePos: [0, 0],
+        
         player: {
             speed: 4
         }
@@ -215,20 +222,22 @@ class Map extends Component {
         return found;
     }
 
+    // Write functions for those actions
+    backAction() {
+        this.setState({ actionMenu: false, origin: this.state.confirmOrigin, playerGrid: this.state.confirmPlayerGrid, playerMap: this.state.confirmPlayerMap});
+    }
 
+    waitAction() {
+        this.setState({ actionMenu: false, selection: false})
+    }
 
     render() {
-        // x and y are reversed somehow. I will have to look at it when I update the map.
         const width = 19;
         const height = 13;
-
         const viewable = [];
-        // let range = []
+        let actionMenu = "none";
 
-        // if (this.state.playerPhase && !this.state.moving) {
-        //     range = this.moveRange(this.state.playerMap, this.state.player.speed);
-        // }
-
+        // Block that defines every tile in the map
         for (let x = 0;  x < width; x++) {
             for (let y = 0; y < height; y++) {
                 let mapX = x + this.state.origin[0] - ((width - 1) / 2);
@@ -236,10 +245,14 @@ class Map extends Component {
                 let id = "x" + (x + 1) + "y" + (y + 1);
                 let clickFunc;
                 let imageSource = map[mapX-1][mapY-1].image;
+                // ONly acceot commands if we aren't moving
                 if (!this.state.moving) {
+                    // Free move as not in battle
                     if (!this.state.inBattle) {
                         clickFunc = () => this.move(mapX, mapY);
-                    } else if (this.state.inBattle && this.state.playerPhase) {
+                    } else if (this.state.playerPhase) {
+                        // this is the player's turn
+                        // if no one has been selected, selecting is all you can do
                         if (!this.state.selection) {
                             if ((x+1) === this.state.playerGrid[0] && (y+1) === this.state.playerGrid[1]) { 
                                 clickFunc = () => {
@@ -247,11 +260,20 @@ class Map extends Component {
                                 }
                             }
                         } else {
-                            if (this.inRange([mapX, mapY], this.state.playerRange)) {
-                                imageSource = playerRange;
-                                clickFunc = () => this.move(mapX, mapY);
-                            } else { 
-                                clickFunc = () => this.setState({ selection: false });
+                            // When you're choosing where to go
+                            if (!this.state.actionMenu) {                                
+                                if (this.inRange([mapX, mapY], this.state.playerRange)) {
+                                    imageSource = playerRange;
+                                    clickFunc = () => {
+                                        this.setState({ actionMenu: true, confirmOrigin: this.state.origin, confirmPlayerGrid: this.state.playerGrid, confirmPlayerMap: this.state.playerMap });
+                                        this.move(mapX, mapY);
+                                    }
+                                } else { 
+                                    clickFunc = () => this.setState({ selection: false });
+                                }
+                            } else {
+                                // The action menu is up (Attack Wait Back)
+                                actionMenu = "flex";
                             }
                         }
                     }
@@ -286,6 +308,11 @@ class Map extends Component {
                     direction={this.state.playerDirection}
                 >
                 </Player>
+                <ActionMenu
+                    display={actionMenu}
+                    wait={() => this.waitAction()}
+                    back={() => this.backAction()}
+                ></ActionMenu>
             </div>
         )
     }

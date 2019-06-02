@@ -2,6 +2,7 @@ import React, { Component } from  "react";
 import Tile from "../Tile";
 import ActionMenu from "../ActionMenu"
 import Player from "../Player";
+import Enemy from "../Enemy";
 import map from "./mapArray";
 import playerRange from "./tiles/PlayerRange3.png";
 import "./style.css";
@@ -13,7 +14,7 @@ class Map extends Component {
     state = {
         mapTravelCost: map.map( row => row.map( column => column.travelCost)),
         moving: false,
-        inBattle: true,
+        inBattle: false,
         playerPhase: true,
         selection: false,
         actionMenu: false,
@@ -39,6 +40,14 @@ class Map extends Component {
         
         player: {
             speed: 4
+        },
+        bandit1: {
+            grid: [15, 9],
+            map: [15, 9],
+            range: [],
+            pos: [0, 0],
+            direction: 1,
+            frame: 0,
         }
     }
 
@@ -308,6 +317,14 @@ class Map extends Component {
                     direction={this.state.playerDirection}
                 >
                 </Player>
+                <Enemy
+                    enemyGrid={this.state.bandit1.grid}
+                    top={this.state.bandit1.pos[1]}
+                    left={this.state.bandit1.pos[0]}
+                    frame={this.state.bandit1.frame}
+                    direction={this.state.bandit1.direction}
+                >
+                </Enemy>
                 <ActionMenu
                     display={actionMenu}
                     wait={() => this.waitAction()}

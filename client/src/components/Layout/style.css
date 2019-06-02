@@ -42,6 +42,7 @@ body {
     z-index: 100;
     background: blue;
     border: none;
+    position: relative;
 }
 
 #info {
@@ -50,4 +51,5 @@ body {
     border: none;
     display: grid;
     grid-template: 1fr / 1fr 1fr;
+    position: relative;
 }

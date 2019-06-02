@@ -1,8 +1,6 @@
 import React from  "react";
 import "./style.css";
 
-// import sprite from "./Player3.png";
-
 function Player(props) {
     return (
         <div

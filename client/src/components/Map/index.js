@@ -15,7 +15,7 @@ class Map extends Component {
         mapTravelCost: map.map( row => row.map( column => column.travelCost)),
         moving: false,
         inBattle: false,
-        playerPhase: true,
+        playerPhase: false,
         selection: false,
         actionMenu: false,
         // camera center
@@ -52,64 +52,82 @@ class Map extends Component {
     }
 
     // moving starts with this.move(destinationX, destinationY)
-    // this.move calculates travel distance to target (maybe unnecesary), calls path (a function which will be recalled in a cycle with step)
+    // this.move calculates travel distance to target (maybe unnecesary)
+    // and calls path (a function which will be recalled in a cycle with step)
     // Matt says that's probably wrong or unnecessary once the a* goes in
     // path calculates the direction we're moving and then executes animation function, step
-    // step determines if the camera or player moves and handles the animation before kicking back to path, which determines the remaining distance and direction of the next step
+    // step determines if the camera or player moves and handles the animation before kicking back to path, 
+    // which determines the remaining distance and direction of the next step
     // repeat until delta = [0,0]
 
     // 
     step(direction, path) {
         // position of player after step
-        let playerStep = [this.state.playerMap[0] + direction[0], this.state.playerMap[1] + direction[1]];
+        let playerStep = [
+            this.state.playerMap[0] + direction[0], 
+            this.state.playerMap[1] + direction[1]
+        ];
         // calculation variables
         let playerGrid = [];
-        let origin = []
+        let origin = [];
+        let bandit1Grid = [];
         let mapMove;
         // determine where camera position is relative to the x-axis
         if (playerStep[0] <= 10) {
             origin.push(10);
+            bandit1Grid.push(this.state.bandit1.grid[0]);
             playerGrid.push(playerStep[0]);
             if (direction[0] !== 0) {
                 if (origin[0] === this.state.origin[0]) {mapMove = false}
-                else { mapMove = true };
+                else { 
+                    mapMove = true;
+                    bandit1Grid[0]++;
+                };
             }
-        }
-        else if (playerStep[0] >= 38) {
+        } else if (playerStep[0] >= 38) {
             origin.push(38);
+            bandit1Grid.push(this.state.bandit1.grid[0]);
             playerGrid.push(19-(48-(playerStep[0]+1)));
             if (direction[0] !== 0) {
                 if (origin[0] === this.state.origin[0]) {mapMove = false}
-                else { mapMove = true };
+                else { 
+                    mapMove = true;
+                    bandit1Grid[0]--;
+                 };
             }
-        }
-        else {
+        } else {
             origin.push(playerStep[0]);
+            bandit1Grid.push(this.state.bandit1.grid[0] - direction[0]);
             playerGrid.push(10);
-            if (direction[0] !== 0) {
-                mapMove = true;
-            }
+            if (direction[0] !== 0) { mapMove = true; }
         }
         // determine where camera position is relative to the y-axis
         if (playerStep[1] <= 7) {
             origin.push(7);
             playerGrid.push(playerStep[1]);
+            bandit1Grid.push(this.state.bandit1.grid[1]);
             if (direction[1] !== 0) {
                 if (origin[1] === this.state.origin[1]) {mapMove = false}
-                else { mapMove = true };
+                else { 
+                    mapMove = true;
+                    bandit1Grid[1]++;
+                };
             }
-        }
-        else if (playerStep[1] >= 41) {
+        } else if (playerStep[1] >= 41) {
             origin.push(41);
             playerGrid.push(13-(48-(playerStep[1]+1)));
+            bandit1Grid.push(this.state.bandit1.grid[1]);
             if (direction[1] !== 0) {
                 if (origin[1] === this.state.origin[1]) {mapMove = false}
-                else { mapMove = true };
+                else { 
+                    mapMove = true;
+                    bandit1Grid[1]--;                
+                };
             }
-        }
-        else {
+        } else {
             origin.push(playerStep[1]);
             playerGrid.push(7);
+            bandit1Grid.push(this.state.bandit1.grid[1] - direction[1]);
             if (direction[1] !== 0) { mapMove = true; }
         }
         
@@ -122,25 +140,41 @@ class Map extends Component {
                         this.setState({ playerFrame: this.state.playerFrame + 48 });
                     }
                     if (mapMove) {
-                        this.setState({tilePos: [this.state.tilePos[0]-(direction[0]*pixelsPerTick), this.state.tilePos[1]-(direction[1]*pixelsPerTick)]}, 
+                        let bandit1 = this.state.bandit1;
+                        bandit1.pos = [
+                            this.state.bandit1.pos[0]-(direction[0]*pixelsPerTick), 
+                            this.state.bandit1.pos[1]-(direction[1]*pixelsPerTick)
+                        ];
+                        this.setState({
+                            tilePos: [
+                                this.state.tilePos[0]-(direction[0]*pixelsPerTick), 
+                                this.state.tilePos[1]-(direction[1]*pixelsPerTick)
+                            ],
+                            bandit1: bandit1,
+                        }, 
+                            () => requestAnimationFrame(playerWalking)
+                        );
+                    } else {
+                        this.setState({playerPos: [
+                            this.state.playerPos[0]+(direction[0]*pixelsPerTick), 
+                            this.state.playerPos[1]+(direction[1]*pixelsPerTick)
+                        ]}, 
                             () => requestAnimationFrame(playerWalking)
                         );
                     }
-                    else {
-                        this.setState({playerPos: [this.state.playerPos[0]+(direction[0]*pixelsPerTick), this.state.playerPos[1]+(direction[1]*pixelsPerTick)]}, 
-                            () => requestAnimationFrame(playerWalking)
-                        );
-                    }
-                }
-                else { requestAnimationFrame(playerWalking) }
-            }
-            else {
+                } else { requestAnimationFrame(playerWalking) }
+            } else {
+                let bandit1 = this.state.bandit1;
+                bandit1.pos = [0,0];
+                bandit1.grid = bandit1Grid;
+
                 // lock in new map position
                 this.setState({
                     origin: origin, 
                     playerGrid: playerGrid, 
                     playerMap: playerStep, 
-                    tilePos: [0,0], 
+                    tilePos: [0,0],
+                    bandit1: bandit1,
                     playerPos: [0,0] }, 
                     () => this.direction(path)
                 );
@@ -178,8 +212,9 @@ class Map extends Component {
     direction(path) {
         // direction array based on unit circle
         if (path.length > 1) {
-            let direction = [path[1][0] - path[0][0], path[1][1] - path[0][1]];            
+            let direction = [path[1][0] - path[0][0], path[1][1] - path[0][1]];
             path.shift();
+            // determine direction player faces
             if (direction[0] === 1) {
                 this.setState({playerDirection: 1}, () => this.step(direction, path))
             } else if (direction[0] === -1) {
@@ -187,8 +222,7 @@ class Map extends Component {
             } else {
                 this.step(direction, path);
             }
-        }
-        else {
+        } else {
             this.setState({moving: false, playerFrame: 0});
         }
     };
@@ -228,12 +262,17 @@ class Map extends Component {
         for (let i = 0; i<range.length; i++) {
             if (position[0] === range[i][0] && position[1] === range[i][1]) { found = true }
         }
+
         return found;
     }
 
     // Write functions for those actions
     backAction() {
-        this.setState({ actionMenu: false, origin: this.state.confirmOrigin, playerGrid: this.state.confirmPlayerGrid, playerMap: this.state.confirmPlayerMap});
+        this.setState({ 
+            actionMenu: false, 
+            origin: this.state.confirmOrigin, 
+            playerGrid: this.state.confirmPlayerGrid, 
+            playerMap: this.state.confirmPlayerMap});
     }
 
     waitAction() {
@@ -241,6 +280,7 @@ class Map extends Component {
     }
 
     render() {
+
         const width = 19;
         const height = 13;
         const viewable = [];
@@ -265,16 +305,23 @@ class Map extends Component {
                         if (!this.state.selection) {
                             if ((x+1) === this.state.playerGrid[0] && (y+1) === this.state.playerGrid[1]) { 
                                 clickFunc = () => {
-                                    this.setState({ selection: true, playerRange: this.moveRange(this.state.playerMap, this.state.player.speed)});
+                                    this.setState({ 
+                                        selection: true, 
+                                        playerRange: this.moveRange(this.state.playerMap, this.state.player.speed)});
                                 }
                             }
                         } else {
                             // When you're choosing where to go
-                            if (!this.state.actionMenu) {                                
+                            if (!this.state.actionMenu) {
                                 if (this.inRange([mapX, mapY], this.state.playerRange)) {
                                     imageSource = playerRange;
                                     clickFunc = () => {
-                                        this.setState({ actionMenu: true, confirmOrigin: this.state.origin, confirmPlayerGrid: this.state.playerGrid, confirmPlayerMap: this.state.playerMap });
+                                        this.setState({ 
+                                            actionMenu: true, 
+                                            confirmOrigin: this.state.origin, 
+                                            confirmPlayerGrid: this.state.playerGrid, 
+                                            confirmPlayerMap: this.state.playerMap 
+                                        });
                                         this.move(mapX, mapY);
                                     }
                                 } else { 
@@ -287,7 +334,6 @@ class Map extends Component {
                         }
                     }
                 }
-                
 
                 viewable.push(
                     <Tile 
@@ -301,7 +347,7 @@ class Map extends Component {
                         imageSource={imageSource}
                         click={clickFunc}
                     >
-                    </Tile>                 
+                    </Tile>
                 ); 
             }
         }

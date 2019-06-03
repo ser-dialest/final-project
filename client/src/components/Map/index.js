@@ -1,3 +1,12 @@
+// HEY  JEFFREY LOOK AT ME
+// YOU ARE UNABLE TO ACCURATELY IDENTIFY WHICH BANDITS ARE AGGRO 
+// ONLY BECAUSE THEY ARE NOT WALKABLE TILES
+// ADD THEM TO THE WALKABLE TILES AT THE START OF BATTLE TO SEE WHO IS AGGRO
+// THEN PUT THEM BACK IN THE UNWALKABLE AREA
+
+
+
+
 import React, { Component } from  "react";
 import Tile from "../Tile";
 import ActionMenu from "../ActionMenu"
@@ -52,7 +61,7 @@ class Map extends Component {
                 frame: 0,
             },
             {
-                map: [10, 5],
+                map: [18, 5],
                 range: [],
                 direction: 1,
                 frame: 0,
@@ -88,6 +97,7 @@ class Map extends Component {
                 frame: 0,
             },
         ],
+        aggroBandits: []
     }
 
     // moving starts with this.move(destinationX, destinationY)
@@ -216,7 +226,6 @@ class Map extends Component {
     move(mapX, mapY) {
         // check if it is a walkable tile
         let walkable = this.dontTreadOnMe();
-        console.log(walkable);
         if (walkable[mapX-1][mapY-1] === 0) {
             // use easy-astar npm to generate array of coordinates to goal
             const startPos = {x:this.state.playerMap[0], y:this.state.playerMap[1]};
@@ -234,21 +243,26 @@ class Map extends Component {
     }
 
     direction(path) {
-        // direction array based on unit circle
-        if (path.length > 1) {
-            let direction = [path[1][0] - path[0][0], path[1][1] - path[0][1]];
-            path.shift();
-            // determine direction player faces
-            if (direction[0] === 1) {
-                this.setState({playerDirection: 1}, () => this.step(direction, path))
-            } else if (direction[0] === -1) {
-                this.setState({playerDirection: -1}, () => this.step(direction, path))
-            } else {
-                this.step(direction, path);
-            }
+        // If not in battle, check to see if in range for battle to start
+        if (!this.state.inBattle && this.inRange(this.state.playerMap, this.state.startBattleRange)) {
+            this.startBattle();
         } else {
-            this.setState({moving: false, playerFrame: 0});
-        }
+            // direction array based on unit circle
+            if (path.length > 1) {
+                let direction = [path[1][0] - path[0][0], path[1][1] - path[0][1]];
+                path.shift();
+                // determine direction player faces
+                if (direction[0] === 1) {
+                    this.setState({playerDirection: 1}, () => this.step(direction, path))
+                } else if (direction[0] === -1) {
+                    this.setState({playerDirection: -1}, () => this.step(direction, path))
+                } else {
+                    this.step(direction, path);
+                }
+            } else {
+                this.setState({moving: false, playerFrame: 0});
+            }
+        };
     };
 
     // determine if it can be moved to within a turn
@@ -283,7 +297,7 @@ class Map extends Component {
 
     inRange(position, range) {
         let found = false;
-        for (let i = 0; i<range.length; i++) {
+        for (let i = 0; i < range.length; i++) {
             if (position[0] === range[i][0] && position[1] === range[i][1]) { found = true }
         }
         return found;
@@ -334,12 +348,27 @@ class Map extends Component {
         this.setState({ startBattleRange: startBattleRange});
     }
 
+    startBattle() {
+        // play music
+        let aggro = [];
+        let aggroRange = this.findRange(this.state.playerMap, 5);
+        console.log(this.state.playerMap);
+        this.state.bandits.forEach(each => {
+            console.log(each.map);
+            if (this.inRange(each.map, aggroRange)) {
+                aggro.push(this.state.bandits.indexOf(each))
+            }
+        })
+
+        console.log(aggroRange);
+        this.setState({ inBattle: true, playerPhase: true, moving: false, aggroBandits: aggro }, () => console.log(this.state.aggroBandits));
+    }
+
     componentDidMount() {
         this.startBattleRange();
     }
 
     render() {
-
         const width = 19;
         const height = 13;
         const viewable = [];
@@ -375,6 +404,9 @@ class Map extends Component {
                                 if (this.inRange([mapX, mapY], this.state.playerRange)) {
                                     imageSource = playerRange;
                                     clickFunc = () => {
+                                        // everything that happens when you have chosen to move in a place during battle
+                                        // let banditPositions = [];
+                                        // this.state.bandits.forEach(each => banditPositions.push(each.map))
                                         this.setState({ 
                                             actionMenu: true, 
                                             confirmOrigin: this.state.camera, 

@@ -265,18 +265,27 @@ class Map extends Component {
         };
     };
 
-    // determine if it can be moved to within a turn
     findRange(start, speed) {
         let range = [];
-        let walkableMap = this.state.mapTravelCost;
         for (let x = speed; x >= -speed; x--) {
             let yVariance= Math.abs(Math.abs(x)-Math.abs(speed));
             for (let y = yVariance; y >= -yVariance; y--) {
                 let test = [start[0] + x, start[1] + y];
-                // check if out of bounds
                 if (test[0] < 1 || test[0] > 50 || test[1] < 1 || test[1] > 50) { continue };
-                // check if walkable
-                if (walkableMap[test[0]-1][test[1]-1] === 1) { continue };
+                range.push(test);
+            }
+        }
+        return range;
+    }
+
+
+    // determine if it can be moved to within a turn
+    walkableRange(start, speed) {
+        let range = this.findRange(start, speed);
+        let walkableRange = []
+        let walkableMap = this.state.mapTravelCost;
+        range.forEach(test => {
+            if (walkableMap[test[0]-1][test[1]-1] === 0) {
                 // easyAStar objects
                 const startPos = {x:start[0], y:start[1]};
                 const endPos = {x:test[0],y:test[1]};
@@ -288,11 +297,11 @@ class Map extends Component {
                     }
                 }, startPos, endPos);
                 if (speed >= (testPath.length-1)) {
-                    range.push(test);
+                    walkableRange.push(test);
                 }
             }
-        }
-        return range;
+        });
+        return walkableRange;
     }
 
     inRange(position, range) {
@@ -352,15 +361,15 @@ class Map extends Component {
         // play music
         let aggro = [];
         let aggroRange = this.findRange(this.state.playerMap, 5);
-        console.log(this.state.playerMap);
+        // console.log(this.state.playerMap);
         this.state.bandits.forEach(each => {
-            console.log(each.map);
+            // console.log(each.map);
             if (this.inRange(each.map, aggroRange)) {
                 aggro.push(this.state.bandits.indexOf(each))
             }
         })
 
-        console.log(aggroRange);
+        // console.log(aggroRange);
         this.setState({ inBattle: true, playerPhase: true, moving: false, aggroBandits: aggro }, () => console.log(this.state.aggroBandits));
     }
 
@@ -395,7 +404,7 @@ class Map extends Component {
                                 clickFunc = () => {
                                     this.setState({ 
                                         selection: true, 
-                                        playerRange: this.findRange(this.state.playerMap, this.state.player.speed)});
+                                        playerRange: this.walkableRange(this.state.playerMap, this.state.player.speed)});
                                 }
                             }
                         } else {

@@ -15,7 +15,9 @@ function ActionMenu(props) {
             id="action-menu"
             key="action-menu"
         >
-            <button>Attack</button>
+            <button style={{display: `${props.attackButton}`}} >
+                Attack
+            </button>
             <button onClick={props.wait}>Wait</button>
             <button onClick={props.back}>Back</button>
         </div>

@@ -382,6 +382,7 @@ class Map extends Component {
         const height = 13;
         const viewable = [];
         let actionMenu = "none";
+        let attackButton = "none";
 
         // Block that defines every tile in the map
         for (let x = 0;  x < width; x++) {
@@ -414,10 +415,19 @@ class Map extends Component {
                                     imageSource = playerRange;
                                     clickFunc = () => {
                                         // everything that happens when you have chosen to move in a place during battle
-                                        // let banditPositions = [];
-                                        // this.state.bandits.forEach(each => banditPositions.push(each.map))
+                                        // find if we are near the enemy and can attack
+                                        let banditPositions = [];
+                                        this.state.aggroBandits.forEach(aggroIndex => banditPositions.push(this.state.bandits[aggroIndex].map));
+                                        let attackPositions = [];
+                                        banditPositions.forEach( bandit => {
+                                            attackPositions.push([bandit[0]+1, bandit[1]]);
+                                            attackPositions.push([bandit[0]-1, bandit[1]]);
+                                            attackPositions.push([bandit[0], bandit[1]+1]);
+                                            attackPositions.push([bandit[0], bandit[1]-1]);
+                                        });
                                         this.setState({ 
-                                            actionMenu: true, 
+                                            actionMenu: true,
+                                            canAttack: (this.inRange([mapX, mapY], attackPositions)),
                                             confirmOrigin: this.state.camera, 
                                             confirmPlayerGrid: this.state.playerGrid, 
                                             confirmPlayerMap: this.state.playerMap 
@@ -430,6 +440,7 @@ class Map extends Component {
                             } else {
                                 // The action menu is up (Attack Wait Back)
                                 actionMenu = "flex";
+                                if (this.state.canAttack) { attackButton = "inline"};
                             }
                         }
                     }
@@ -485,6 +496,7 @@ class Map extends Component {
                 {enemies}
                 <ActionMenu
                     display={actionMenu}
+                    attackButton={attackButton}
                     wait={() => this.waitAction()}
                     back={() => this.backAction()}
                 ></ActionMenu>

@@ -14,11 +14,13 @@ class Map extends Component {
     state = {
         centerGrid: {x: 10, y: 7},
         mapTravelCost: map.map( row => row.map( column => column.travelCost)),
+        startBattleRange: [],
         moving: false,
         inBattle: false,
         playerPhase: false,
         selection: false,
         actionMenu: false,
+        canAttack: false,
         // camera center
         camera: [10, 7],
         // Where player is on the screen
@@ -42,50 +44,50 @@ class Map extends Component {
             speed: 4
         },
         npcPos: [0, 0],
-        bandits: {
-            bandit1: {
+        bandits: [
+            {
                 map: [15, 12],
                 range: [],
                 direction: 1,
                 frame: 0,
             },
-            bandit2: {
+            {
                 map: [10, 5],
                 range: [],
                 direction: 1,
                 frame: 0,
             },
-            bandit3: {
+            {
                 map: [40, 17],
                 range: [],
                 direction: 1,
                 frame: 0,
             },
-            bandit4: {
+            {
                 map: [25, 25],
                 range: [],
                 direction: 1,
                 frame: 0,
             },
-            bandit5: {
+            {
                 map: [4, 42],
                 range: [],
                 direction: 1,
                 frame: 0,
             },
-            bandit6: {
+            {
                 map: [37, 26],
                 range: [],
                 direction: 1,
                 frame: 0,
             },
-            bandit7: {
+            {
                 map: [20, 19],
                 range: [],
                 direction: 1,
                 frame: 0,
             },
-        }
+        ],
     }
 
     // moving starts with this.move(destinationX, destinationY)
@@ -250,7 +252,7 @@ class Map extends Component {
     };
 
     // determine if it can be moved to within a turn
-    moveRange(start, speed) {
+    findRange(start, speed) {
         let range = [];
         let walkableMap = this.state.mapTravelCost;
         for (let x = speed; x >= -speed; x--) {
@@ -302,9 +304,9 @@ class Map extends Component {
 
     dontTreadOnMe() {
         let walkable = this.state.mapTravelCost;
-        for (let each in this.state.bandits) {
-            walkable[this.state.bandits[each].map[0]-1][this.state.bandits[each].map[1]-1] = 1;
-        }
+        this.state.bandits.forEach( each => {
+            walkable[each.map[0]-1][each.map[1]-1] = 1;
+        });
         return walkable;
     }
 
@@ -322,6 +324,18 @@ class Map extends Component {
             display: display
         };
         return result;
+    }
+
+    startBattleRange() {
+        let startBattleRange = [[1,0]];
+        this.state.bandits.forEach( each => {
+            this.findRange(each.map, 5).forEach(coordinate => startBattleRange.push(coordinate))
+        });
+        this.setState({ startBattleRange: startBattleRange});
+    }
+
+    componentDidMount() {
+        this.startBattleRange();
     }
 
     render() {
@@ -352,7 +366,7 @@ class Map extends Component {
                                 clickFunc = () => {
                                     this.setState({ 
                                         selection: true, 
-                                        playerRange: this.moveRange(this.state.playerMap, this.state.player.speed)});
+                                        playerRange: this.findRange(this.state.playerMap, this.state.player.speed)});
                                 }
                             }
                         } else {
@@ -400,21 +414,21 @@ class Map extends Component {
         // Place enemies
         let enemies = [];
         let i = 0;
-        for (let individual in this.state.bandits) {
+        this.state.bandits.forEach( each => {
             i++;
             enemies.push(
                 <Enemy
-                    gridDisplay={this.gridDisplay(this.state.bandits[individual].map)}
+                    gridDisplay={this.gridDisplay(each.map)}
                     top={this.state.npcPos[1]}
                     left={this.state.npcPos[0]}
-                    frame={this.state.bandits[individual].frame}
-                    direction={this.state.bandits[individual].direction}
+                    frame={each.frame}
+                    direction={each.direction}
                     id={"bandit-" + i}
                     key={"bandit-" + i}
                 >
                 </Enemy>
             );
-        };
+        });
 
         return (
             <div id="map">

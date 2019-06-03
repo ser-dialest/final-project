@@ -74,7 +74,7 @@ class Map extends Component {
                 frame: 0,
             },
             bandit6: {
-                map: [35, 26],
+                map: [37, 26],
                 range: [],
                 direction: 1,
                 frame: 0,
@@ -213,12 +213,14 @@ class Map extends Component {
 
     move(mapX, mapY) {
         // check if it is a walkable tile
-        if (this.state.mapTravelCost[mapX-1][mapY-1] === 0) {
+        let walkable = this.dontTreadOnMe();
+        console.log(walkable);
+        if (walkable[mapX-1][mapY-1] === 0) {
             // use easy-astar npm to generate array of coordinates to goal
             const startPos = {x:this.state.playerMap[0], y:this.state.playerMap[1]};
             const endPos = {x:mapX,y:mapY};
             const aStarPath = aStar((x, y)=>{
-                if (this.state.mapTravelCost[x-1][y-1] === 0) {
+                if (walkable[x-1][y-1] === 0) {
                     return true; // 0 means road
                 } else {
                     return false; // 1 means wall
@@ -296,6 +298,14 @@ class Map extends Component {
 
     waitAction() {
         this.setState({ actionMenu: false, selection: false})
+    }
+
+    dontTreadOnMe() {
+        let walkable = this.state.mapTravelCost;
+        for (let each in this.state.bandits) {
+            walkable[this.state.bandits[each].map[0]-1][this.state.bandits[each].map[1]-1] = 1;
+        }
+        return walkable;
     }
 
     // determine where (or if) an item is on screen 
@@ -400,6 +410,7 @@ class Map extends Component {
                     frame={this.state.bandits[individual].frame}
                     direction={this.state.bandits[individual].direction}
                     id={"bandit-" + i}
+                    key={"bandit-" + i}
                 >
                 </Enemy>
             );

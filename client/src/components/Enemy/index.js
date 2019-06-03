@@ -4,19 +4,21 @@ import "./style.css";
 function Enemy(props) {
     return (
         <div
+            className="bandit"
             style={{
-                gridColumnStart:`${props.enemyGrid[0]}`, 
-                gridRow:`${props.enemyGrid[1]-1}/span 2`,
+                display: `${props.gridDisplay.display}`,
+                gridColumnStart:`${props.gridDisplay.x}`, 
+                gridRow:`${props.gridDisplay.y - 1}/span 2`,
                 top:`${props.top}px`,
                 left:`${props.left}px`,
                 position:"relative",
                 backgroundPositionX:`${props.frame}px`,
-                transform: `scaleX(${props.direction})`
+                transform: `scaleX(${props.direction})`,
+                zIndex: `${props.gridDisplay.y}`
             }}
-            id="bandit1"
-            alt="bandit1"
-            key="bandit1"
-
+            id={props.id}
+            alt={props.id}
+            key={props.id}
         >
         </div>
     );

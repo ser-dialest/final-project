@@ -2,7 +2,6 @@
     /* position: absolute;
     bottom: 0px;
     left: 0px; */
-    z-index: 2;
     background-image: url("./Player3.png");
     display: inline;
     pointer-events: none;

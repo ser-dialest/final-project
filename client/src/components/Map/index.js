@@ -12,6 +12,7 @@ const aStar = require("easy-astar").easyAStar;
 class Map extends Component {
 
     state = {
+        centerGrid: {x: 10, y: 7},
         mapTravelCost: map.map( row => row.map( column => column.travelCost)),
         moving: false,
         inBattle: false,
@@ -19,7 +20,7 @@ class Map extends Component {
         selection: false,
         actionMenu: false,
         // camera center
-        origin: [10, 7],
+        camera: [10, 7],
         // Where player is on the screen
         playerGrid: [10, 7],
         // Where player is on the map
@@ -37,17 +38,53 @@ class Map extends Component {
         playerFrame: 0,
         // How far tile has moved from side
         tilePos: [0, 0],
-        
         player: {
             speed: 4
         },
-        bandit1: {
-            grid: [15, 9],
-            map: [15, 9],
-            range: [],
-            pos: [0, 0],
-            direction: 1,
-            frame: 0,
+        npcPos: [0, 0],
+        bandits: {
+            bandit1: {
+                map: [15, 12],
+                range: [],
+                direction: 1,
+                frame: 0,
+            },
+            bandit2: {
+                map: [10, 5],
+                range: [],
+                direction: 1,
+                frame: 0,
+            },
+            bandit3: {
+                map: [40, 17],
+                range: [],
+                direction: 1,
+                frame: 0,
+            },
+            bandit4: {
+                map: [25, 25],
+                range: [],
+                direction: 1,
+                frame: 0,
+            },
+            bandit5: {
+                map: [4, 42],
+                range: [],
+                direction: 1,
+                frame: 0,
+            },
+            bandit6: {
+                map: [35, 26],
+                range: [],
+                direction: 1,
+                frame: 0,
+            },
+            bandit7: {
+                map: [20, 19],
+                range: [],
+                direction: 1,
+                frame: 0,
+            },
         }
     }
 
@@ -64,70 +101,59 @@ class Map extends Component {
     step(direction, path) {
         // position of player after step
         let playerStep = [
-            this.state.playerMap[0] + direction[0], 
+            this.state.playerMap[0] + direction[0],
             this.state.playerMap[1] + direction[1]
         ];
         // calculation variables
         let playerGrid = [];
-        let origin = [];
-        let bandit1Grid = [];
+        let camera = [];
         let mapMove;
         // determine where camera position is relative to the x-axis
         if (playerStep[0] <= 10) {
-            origin.push(10);
-            bandit1Grid.push(this.state.bandit1.grid[0]);
+            camera.push(10);
             playerGrid.push(playerStep[0]);
             if (direction[0] !== 0) {
-                if (origin[0] === this.state.origin[0]) {mapMove = false}
-                else { 
+                if (camera[0] === this.state.camera[0]) {mapMove = false}
+                else {
                     mapMove = true;
-                    bandit1Grid[0]++;
                 };
             }
         } else if (playerStep[0] >= 38) {
-            origin.push(38);
-            bandit1Grid.push(this.state.bandit1.grid[0]);
+            camera.push(38);
             playerGrid.push(19-(48-(playerStep[0]+1)));
             if (direction[0] !== 0) {
-                if (origin[0] === this.state.origin[0]) {mapMove = false}
-                else { 
+                if (camera[0] === this.state.camera[0]) {mapMove = false}
+                else {
                     mapMove = true;
-                    bandit1Grid[0]--;
                  };
             }
         } else {
-            origin.push(playerStep[0]);
-            bandit1Grid.push(this.state.bandit1.grid[0] - direction[0]);
+            camera.push(playerStep[0]);
             playerGrid.push(10);
             if (direction[0] !== 0) { mapMove = true; }
         }
         // determine where camera position is relative to the y-axis
         if (playerStep[1] <= 7) {
-            origin.push(7);
+            camera.push(7);
             playerGrid.push(playerStep[1]);
-            bandit1Grid.push(this.state.bandit1.grid[1]);
             if (direction[1] !== 0) {
-                if (origin[1] === this.state.origin[1]) {mapMove = false}
-                else { 
+                if (camera[1] === this.state.camera[1]) {mapMove = false}
+                else {
                     mapMove = true;
-                    bandit1Grid[1]++;
                 };
             }
         } else if (playerStep[1] >= 41) {
-            origin.push(41);
+            camera.push(41);
             playerGrid.push(13-(48-(playerStep[1]+1)));
-            bandit1Grid.push(this.state.bandit1.grid[1]);
             if (direction[1] !== 0) {
-                if (origin[1] === this.state.origin[1]) {mapMove = false}
-                else { 
+                if (camera[1] === this.state.camera[1]) {mapMove = false}
+                else {
                     mapMove = true;
-                    bandit1Grid[1]--;                
                 };
             }
         } else {
-            origin.push(playerStep[1]);
+            camera.push(playerStep[1]);
             playerGrid.push(7);
-            bandit1Grid.push(this.state.bandit1.grid[1] - direction[1]);
             if (direction[1] !== 0) { mapMove = true; }
         }
         
@@ -140,41 +166,35 @@ class Map extends Component {
                         this.setState({ playerFrame: this.state.playerFrame + 48 });
                     }
                     if (mapMove) {
-                        let bandit1 = this.state.bandit1;
-                        bandit1.pos = [
-                            this.state.bandit1.pos[0]-(direction[0]*pixelsPerTick), 
-                            this.state.bandit1.pos[1]-(direction[1]*pixelsPerTick)
-                        ];
                         this.setState({
                             tilePos: [
-                                this.state.tilePos[0]-(direction[0]*pixelsPerTick), 
+                                this.state.tilePos[0]-(direction[0]*pixelsPerTick),
                                 this.state.tilePos[1]-(direction[1]*pixelsPerTick)
                             ],
-                            bandit1: bandit1,
-                        }, 
+                            npcPos: [
+                                this.state.npcPos[0]-(direction[0]*pixelsPerTick),
+                                this.state.npcPos[1]-(direction[1]*pixelsPerTick)
+                            ]
+                        },
                             () => requestAnimationFrame(playerWalking)
                         );
                     } else {
                         this.setState({playerPos: [
-                            this.state.playerPos[0]+(direction[0]*pixelsPerTick), 
+                            this.state.playerPos[0]+(direction[0]*pixelsPerTick),
                             this.state.playerPos[1]+(direction[1]*pixelsPerTick)
                         ]}, 
                             () => requestAnimationFrame(playerWalking)
                         );
                     }
                 } else { requestAnimationFrame(playerWalking) }
-            } else {
-                let bandit1 = this.state.bandit1;
-                bandit1.pos = [0,0];
-                bandit1.grid = bandit1Grid;
-
+            } else {                
                 // lock in new map position
                 this.setState({
-                    origin: origin, 
+                    camera: camera, 
                     playerGrid: playerGrid, 
                     playerMap: playerStep, 
                     tilePos: [0,0],
-                    bandit1: bandit1,
+                    npcPos: [0,0],
                     playerPos: [0,0] }, 
                     () => this.direction(path)
                 );
@@ -262,7 +282,6 @@ class Map extends Component {
         for (let i = 0; i<range.length; i++) {
             if (position[0] === range[i][0] && position[1] === range[i][1]) { found = true }
         }
-
         return found;
     }
 
@@ -270,13 +289,29 @@ class Map extends Component {
     backAction() {
         this.setState({ 
             actionMenu: false, 
-            origin: this.state.confirmOrigin, 
+            camera: this.state.confirmOrigin, 
             playerGrid: this.state.confirmPlayerGrid, 
             playerMap: this.state.confirmPlayerMap});
     }
 
     waitAction() {
         this.setState({ actionMenu: false, selection: false})
+    }
+
+    // determine where (or if) an item is on screen 
+    gridDisplay(itemPos) {
+        let x = this.state.centerGrid.x + (itemPos[0] - this.state.camera[0]);
+        let y = this.state.centerGrid.y + (itemPos[1] - this.state.camera[1]);
+        let display = "inline";
+        // magic numbers that are the edges of the display
+        // X goes 1-19, y goes 2-13 to accomodate a display bug
+        if ( x < 1 || x > 19 || y < 2 || y > 13) {display = "none"};
+        let result = {
+            x: x,
+            y: y,
+            display: display
+        };
+        return result;
     }
 
     render() {
@@ -289,12 +324,12 @@ class Map extends Component {
         // Block that defines every tile in the map
         for (let x = 0;  x < width; x++) {
             for (let y = 0; y < height; y++) {
-                let mapX = x + this.state.origin[0] - ((width - 1) / 2);
-                let mapY = y + this.state.origin[1] - ((height - 1) /2);
+                let mapX = x + this.state.camera[0] - ((width - 1) / 2);
+                let mapY = y + this.state.camera[1] - ((height - 1) /2);
                 let id = "x" + (x + 1) + "y" + (y + 1);
                 let clickFunc;
                 let imageSource = map[mapX-1][mapY-1].image;
-                // ONly acceot commands if we aren't moving
+                // Only accept commands if we aren't moving
                 if (!this.state.moving) {
                     // Free move as not in battle
                     if (!this.state.inBattle) {
@@ -318,7 +353,7 @@ class Map extends Component {
                                     clickFunc = () => {
                                         this.setState({ 
                                             actionMenu: true, 
-                                            confirmOrigin: this.state.origin, 
+                                            confirmOrigin: this.state.camera, 
                                             confirmPlayerGrid: this.state.playerGrid, 
                                             confirmPlayerMap: this.state.playerMap 
                                         });
@@ -352,6 +387,24 @@ class Map extends Component {
             }
         }
 
+        // Place enemies
+        let enemies = [];
+        let i = 0;
+        for (let individual in this.state.bandits) {
+            i++;
+            enemies.push(
+                <Enemy
+                    gridDisplay={this.gridDisplay(this.state.bandits[individual].map)}
+                    top={this.state.npcPos[1]}
+                    left={this.state.npcPos[0]}
+                    frame={this.state.bandits[individual].frame}
+                    direction={this.state.bandits[individual].direction}
+                    id={"bandit-" + i}
+                >
+                </Enemy>
+            );
+        };
+
         return (
             <div id="map">
                 {viewable}
@@ -363,14 +416,7 @@ class Map extends Component {
                     direction={this.state.playerDirection}
                 >
                 </Player>
-                <Enemy
-                    enemyGrid={this.state.bandit1.grid}
-                    top={this.state.bandit1.pos[1]}
-                    left={this.state.bandit1.pos[0]}
-                    frame={this.state.bandit1.frame}
-                    direction={this.state.bandit1.direction}
-                >
-                </Enemy>
+                {enemies}
                 <ActionMenu
                     display={actionMenu}
                     wait={() => this.waitAction()}

@@ -1,10 +1,9 @@
 // HEY  JEFFREY LOOK AT ME
-// YOU ARE UNABLE TO ACCURATELY IDENTIFY WHICH BANDITS ARE AGGRO 
-// ONLY BECAUSE THEY ARE NOT WALKABLE TILES
-// ADD THEM TO THE WALKABLE TILES AT THE START OF BATTLE TO SEE WHO IS AGGRO
-// THEN PUT THEM BACK IN THE UNWALKABLE AREA
-
-
+// WHEN AN ENEMY MOVES, HIS POSITION CAN NO LONGER BE TIED TO NPCPOS OR EVERYONE WILL MOVE
+// DEPENDENCE ON THAT MUST BE CONDITIONAL
+// IN THIS ITERATION, ONLY ONE ENEMY WILL MOVE AT A TIME,
+// SO WE CAN GET AWAY WITH THERE JUST BEING ONE ENEMYPOS VARIABLE IN STATE
+// THANK GOD FOR INDICES
 
 
 import React, { Component } from  "react";
@@ -14,6 +13,7 @@ import Player from "../Player";
 import Enemy from "../Enemy";
 import map from "./mapArray";
 import playerRange from "./tiles/PlayerRange3.png";
+import target from "./tiles/Target3.png";
 import "./style.css";
 // import aStar from "easy-astar";
 const aStar = require("easy-astar").easyAStar;
@@ -30,6 +30,7 @@ class Map extends Component {
         selection: false,
         actionMenu: false,
         canAttack: false,
+        targeting: false,
         // camera center
         camera: [10, 7],
         // Where player is on the screen
@@ -50,54 +51,81 @@ class Map extends Component {
         // How far tile has moved from side
         tilePos: [0, 0],
         player: {
-            speed: 4
+            hp: 8,
+            maxHP: 10, 
+            speed: 4,
+            attack: 3,
+            exp: 0,
+            level: 1
         },
         npcPos: [0, 0],
         bandits: [
-            {
+            {   
+                hp: 10,
+                speed: 4,
+                attack: 3,
                 map: [15, 12],
                 range: [],
                 direction: 1,
                 frame: 0,
             },
             {
+                hp: 10,
+                speed: 4,
+                attack: 3,
                 map: [18, 5],
                 range: [],
                 direction: 1,
                 frame: 0,
             },
             {
+                hp: 10,
+                speed: 4,
+                attack: 3,
                 map: [40, 17],
                 range: [],
                 direction: 1,
                 frame: 0,
             },
             {
+                hp: 10,
+                speed: 4,
+                attack: 3,
                 map: [25, 25],
                 range: [],
                 direction: 1,
                 frame: 0,
             },
             {
+                hp: 10,
+                speed: 4,
+                attack: 3,
                 map: [4, 42],
                 range: [],
                 direction: 1,
                 frame: 0,
             },
             {
+                hp: 10,
+                speed: 4,
+                attack: 3,
                 map: [37, 26],
                 range: [],
                 direction: 1,
                 frame: 0,
             },
             {
+                hp: 10,
+                speed: 4,
+                attack: 3,
                 map: [20, 19],
                 range: [],
                 direction: 1,
                 frame: 0,
             },
         ],
-        aggroBandits: []
+        aggroBandits: [],
+        targetable: []
     }
 
     // moving starts with this.move(destinationX, destinationY)
@@ -322,7 +350,38 @@ class Map extends Component {
     }
 
     waitAction() {
-        this.setState({ actionMenu: false, selection: false})
+        this.setState({ actionMenu: false, selection: false});
+    }
+
+    attackAction() {
+        this.setState({ actionMenu: false, targeting: true, });
+    }
+
+    attack(index) {
+        // animation and sound
+        // player attack
+        if (this.state.playerPhase) {
+            const bandits = this.state.bandits;
+            bandits[index].hp -= this.state.player.attack;
+            // if HP <= 0, death animation
+            // remove from aggro bandits
+            // remove from state.bandits
+            // aggroBandits.length === 0, inBattle = false
+            this.setState({ bandits: bandits }, () => console.log(this.state.bandits));
+        // end player phase function
+        }
+    }
+
+    endTurn() {
+        // reset all turn order state variables
+        // initiate enemy turn
+        // this.state.aggroBandits.forEach( index => {
+            // astar to player
+            // remove last step in path array (so the player doesn't get stepped on)
+            // Move adjacent to player or max of 4 steps on astar path
+            // if adjacent, attack
+
+        // })
     }
 
     dontTreadOnMe() {
@@ -361,16 +420,22 @@ class Map extends Component {
         // play music
         let aggro = [];
         let aggroRange = this.findRange(this.state.playerMap, 5);
-        // console.log(this.state.playerMap);
         this.state.bandits.forEach(each => {
-            // console.log(each.map);
             if (this.inRange(each.map, aggroRange)) {
                 aggro.push(this.state.bandits.indexOf(each))
             }
         })
 
-        // console.log(aggroRange);
-        this.setState({ inBattle: true, playerPhase: true, moving: false, aggroBandits: aggro }, () => console.log(this.state.aggroBandits));
+        this.setState({ inBattle: true, playerPhase: true, moving: false, aggroBandits: aggro });
+    }
+
+    adjacent(position) {
+        return [
+            [ position[0]+1, position[1] ],
+            [ position[0]-1, position[1] ],
+            [ position[0], position[1]+1 ],
+            [ position[0], position[1]-1 ]
+        ]
     }
 
     componentDidMount() {
@@ -411,23 +476,35 @@ class Map extends Component {
                         } else {
                             // When you're choosing where to go
                             if (!this.state.actionMenu) {
-                                if (this.inRange([mapX, mapY], this.state.playerRange)) {
+                                // When you're targeting an enemy
+                                if (this.state.targeting) {
+                                    this.state.targetable.forEach(index => {
+                                        if (this.inRange([mapX, mapY], [this.state.bandits[index].map])) {
+                                            imageSource = target;
+                                            clickFunc = () => this.attack(index);
+                                        } else {
+                                            clickFunc = () => this.setState({ targeting: false, actionMenu: true });
+                                        }
+                                    });
+                                } else if (this.inRange([mapX, mapY], this.state.playerRange)) {
                                     imageSource = playerRange;
                                     clickFunc = () => {
                                         // everything that happens when you have chosen to move in a place during battle
                                         // find if we are near the enemy and can attack
-                                        let banditPositions = [];
-                                        this.state.aggroBandits.forEach(aggroIndex => banditPositions.push(this.state.bandits[aggroIndex].map));
-                                        let attackPositions = [];
-                                        banditPositions.forEach( bandit => {
-                                            attackPositions.push([bandit[0]+1, bandit[1]]);
-                                            attackPositions.push([bandit[0]-1, bandit[1]]);
-                                            attackPositions.push([bandit[0], bandit[1]+1]);
-                                            attackPositions.push([bandit[0], bandit[1]-1]);
+                                        let canAttack = false;
+                                        let targetable = [];
+                                        this.state.aggroBandits.forEach(aggroIndex => {
+                                            let banditXY = this.state.bandits[aggroIndex].map;
+                                            let banditAdjacent = this.adjacent(banditXY);
+                                            if (this.inRange([mapX, mapY], banditAdjacent)) {
+                                                canAttack = true;
+                                                targetable.push(aggroIndex);
+                                            }
                                         });
                                         this.setState({ 
                                             actionMenu: true,
-                                            canAttack: (this.inRange([mapX, mapY], attackPositions)),
+                                            canAttack: canAttack,
+                                            targetable: targetable,
                                             confirmOrigin: this.state.camera, 
                                             confirmPlayerGrid: this.state.playerGrid, 
                                             confirmPlayerMap: this.state.playerMap 
@@ -497,6 +574,7 @@ class Map extends Component {
                 <ActionMenu
                     display={actionMenu}
                     attackButton={attackButton}
+                    attack={() => this.attackAction()}
                     wait={() => this.waitAction()}
                     back={() => this.backAction()}
                 ></ActionMenu>

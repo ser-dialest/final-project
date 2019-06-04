@@ -5,7 +5,7 @@ import forestImg from "./Forest3.png";
 
 export const grass = {
     image: grassImg,
-    defense: 1,
+    defense: 0,
     travelCost: 0
 };
 
@@ -23,6 +23,6 @@ export const building = {
 
 export const forest = {
     image: forestImg,
-    defense: 2,
+    defense: 1,
     travelCost: 0
 };

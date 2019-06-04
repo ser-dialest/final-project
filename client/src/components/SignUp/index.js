@@ -38,6 +38,7 @@ class SignUp extends Component {
         }
 
         if (submission.email) {
+            // eslint-disable-next-line
             let emailRegex = RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
             if (!emailRegex.test(String(submission.email).toLowerCase())) { 
                 emailValid = false;

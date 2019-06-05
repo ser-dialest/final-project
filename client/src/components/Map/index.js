@@ -507,7 +507,9 @@ class Map extends Component {
 
     componentDidMount() {
         this.startBattleRange();
+        this.localSave();
     }
+
 
     render() {
         const width = 19;

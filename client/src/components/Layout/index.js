@@ -4,6 +4,7 @@ import User from "../User";
 import Data from "../Data";
 import SignUp from "../SignUp";
 import "./style.css";
+import axios from "axios";
 
 class Layout extends Component {
     constructor(props) {
@@ -14,28 +15,38 @@ class Layout extends Component {
             loggedIn: false,
             userName: "",
             signingIn: "none",
-            createUser: false
+            createUser: false,
+            mapState: {}
         }
     }
 
     signIn(signUp) {
-        console.log("sign up", signUp);
         this.setState({signingIn: "flex", createUser: signUp})
     }
 
-    logInSuccess(username) {
+    logInSuccess(data) {
         // receive user data
-        this.setState({ loggedIn: true, userName: username, signingIn: "none" });
+        localStorage.setItem("token", data.token);
+        this.setState({ loggedIn: true, userName: data.username, signingIn: "none" });
     }
 
     save() {
-        alert("save");
-        // I don't know yet
+        let submission = {};
+        submission.state = localStorage.getItem("state");
+        submission.token = localStorage.getItem("token");
+        let url="api/users/save";
+        axios.post( url, submission).then(response => {
+            console.log(response);
+        })
     }
 
     load() {
-        alert("load");
-        // Also don't know
+        let submission = {};
+        submission.token = localStorage.getItem("token");
+        let url="api/users/load";
+        axios.post( url, submission).then(response => {
+            this.setState({ mapState: response.data}, () => console.log(this.state.mapState));            
+        })
     }
 
     hideSignIn(event) {
@@ -56,7 +67,9 @@ class Layout extends Component {
                 <div id="layout">
                     <div className="borders"></div>
                     <div id="map-area">
-                        <Map></Map>
+                        <Map
+                            mapState={this.state.mapState}
+                        ></Map>
                     </div>
                     <div className="borders"></div>
                     <div className="borders"></div>
@@ -79,31 +92,3 @@ class Layout extends Component {
 };
 
 export default Layout;
-
-
-// var API = {
-//     // User calls
-//     createUser: function(userObj) {
-//       return $.ajax({
-//         type: "POST",
-//         url: "/api/user",
-//         data: userObj,
-//         success: function(response) {
-//           localStorage.clear();
-//           localStorage.setItem("userId", response.id);
-//           localUser.id = localStorage.getItem("userId");
-//           console.log(localUser.id);
-//         }
-//       });
-//     },
-//     getUser: function(userName) {
-//       return $.ajax({
-//         url: "/api/user/" + userName,
-//         type: "GET",
-//         success: function(res) {
-//           loginCheck.id = res.id;
-//           loginCheck.password = res.password;
-//           console.log(res);
-//         }
-//       });
-//     },

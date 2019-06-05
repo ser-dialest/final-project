@@ -14,7 +14,7 @@ function Enemy(props) {
                 position:"relative",
                 backgroundPositionX:`${props.frame}px`,
                 transform: `scaleX(${props.direction})`,
-                zIndex: `${props.gridDisplay.y}`
+                zIndex: `${props.gridDisplay.y * 2}`
             }}
             id={props.id}
             alt={props.id}

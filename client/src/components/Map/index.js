@@ -6,6 +6,8 @@
 // THANK GOD FOR INDICES
 
 
+
+
 import React, { Component } from  "react";
 import Tile from "../Tile";
 import ActionMenu from "../ActionMenu"
@@ -46,8 +48,9 @@ class Map extends Component {
         playerPos: [0, 0],
         // Whether he faces left or right (1 = right, -1 = left)
         playerDirection: 1,
-        // What frame of animation he is in (shift of background)
-        playerFrame: 0,
+        // What frameX of animation he is in (shift of background)
+        playerFrameX: 0,
+        playerFrameY: 0,
         // How far tile has moved from side
         tilePos: [0, 0],
         player: {
@@ -67,7 +70,8 @@ class Map extends Component {
                 map: [15, 12],
                 range: [],
                 direction: 1,
-                frame: 0,
+                frameX: 0,
+                frameY: 0,
             },
             {
                 hp: 10,
@@ -76,7 +80,8 @@ class Map extends Component {
                 map: [18, 5],
                 range: [],
                 direction: 1,
-                frame: 0,
+                frameX: 0,
+                frameY: 0,
             },
             {
                 hp: 10,
@@ -85,7 +90,8 @@ class Map extends Component {
                 map: [40, 17],
                 range: [],
                 direction: 1,
-                frame: 0,
+                frameX: 0,
+                frameY: 0,
             },
             {
                 hp: 10,
@@ -94,7 +100,8 @@ class Map extends Component {
                 map: [25, 25],
                 range: [],
                 direction: 1,
-                frame: 0,
+                frameX: 0,
+                frameY: 0,
             },
             {
                 hp: 10,
@@ -103,7 +110,8 @@ class Map extends Component {
                 map: [4, 42],
                 range: [],
                 direction: 1,
-                frame: 0,
+                frameX: 0,
+                frameY: 0,
             },
             {
                 hp: 10,
@@ -112,7 +120,8 @@ class Map extends Component {
                 map: [37, 26],
                 range: [],
                 direction: 1,
-                frame: 0,
+                frameX: 0,
+                frameY: 0,
             },
             {
                 hp: 10,
@@ -121,7 +130,8 @@ class Map extends Component {
                 map: [20, 19],
                 range: [],
                 direction: 1,
-                frame: 0,
+                frameX: 0,
+                frameY: 0,
             },
         ],
         aggroBandits: [],
@@ -203,7 +213,7 @@ class Map extends Component {
 
                 if (t % framesPerTick === 0) {
                     if (t % (framesPerTick*4) === 0) {
-                        this.setState({ playerFrame: this.state.playerFrame + 48 });
+                        this.setState({ playerFrameX: this.state.playerFrameX + 72 });
                     }
                     if (mapMove) {
                         this.setState({
@@ -288,7 +298,7 @@ class Map extends Component {
                     this.step(direction, path);
                 }
             } else {
-                this.setState({moving: false, playerFrame: 0});
+                this.setState({moving: false, playerFrameX: 0});
             }
         };
     };
@@ -358,7 +368,53 @@ class Map extends Component {
     }
 
     attack(index) {
-        // animation and sound
+        // animation 
+        const swing = (timestamp) => {
+            if (t < animationLength) {
+                t++;
+
+                if (t === framesPerTick*2 || t === framesPerTick*8) { this.setState({ playerFrameX: 0, playerFrameY: -96 }); }
+                if (t === framesPerTick*3 || t === framesPerTick*5 || t === framesPerTick*7) { this.setState({ playerFrameX: -72 }); }
+                if (t === framesPerTick*4 || t === framesPerTick*6) { this.setState({ playerFrameX: -144 }); }
+                if (t === framesPerTick*9) { this.setState({ playerFrameX: 0, playerFrameY: 0 }); }
+
+                // if (t % (framesPerTick*4) === 0) {
+                //     this.setState({ playerFrameX: this.state.playerFrameX + 72 });
+                // }
+            }
+            requestAnimationFrame(swing);
+        }
+
+
+        let t = 0;
+        let animationLength = 109;
+        let framesPerTick = 12;
+        requestAnimationFrame(swing);
+        //           
+        //         // lock in new map position
+        //         this.setState({
+        //             camera: camera, 
+        //             playerGrid: playerGrid, 
+        //             playerMap: playerStep, 
+        //             tilePos: [0,0],
+        //             npcPos: [0,0],
+        //             () => this.direction(path)
+        //         );
+        //     }
+        // };
+
+        // // animation variables
+        // let t = 0;
+        // let tileWidth = 48;
+        // let pixelsPerTick = 4;
+        // let framesPerTick = 2;
+        // let animationLength = (tileWidth/pixelsPerTick)*framesPerTick ; 
+        
+        // requestAnimationFrame(playerWalking)
+        // }
+        
+        
+        // sound
         // player attack
         if (this.state.playerPhase) {
             const bandits = this.state.bandits;
@@ -396,7 +452,7 @@ class Map extends Component {
     gridDisplay(itemPos) {
         let x = this.state.centerGrid.x + (itemPos[0] - this.state.camera[0]);
         let y = this.state.centerGrid.y + (itemPos[1] - this.state.camera[1]);
-        let display = "inline";
+        let display = "inline-block";
         // magic numbers that are the edges of the display
         // X goes 1-19, y goes 2-13 to accomodate a display bug
         if ( x < 1 || x > 19 || y < 2 || y > 13) {display = "none"};
@@ -550,7 +606,8 @@ class Map extends Component {
                     gridDisplay={this.gridDisplay(each.map)}
                     top={this.state.npcPos[1]}
                     left={this.state.npcPos[0]}
-                    frame={each.frame}
+                    frameX={each.frameX}
+                    frameY={each.frameY}
                     direction={each.direction}
                     id={"bandit-" + i}
                     key={"bandit-" + i}
@@ -559,14 +616,18 @@ class Map extends Component {
             );
         });
 
+        let positionModifier = 0
+        if (this.state.playerDirection === -1) { positionModifier = -24}
+
         return (
             <div id="map">
                 {viewable}
                 <Player
                     playerGrid={this.state.playerGrid}
                     top={this.state.playerPos[1]}
-                    left={this.state.playerPos[0]}
-                    frame={this.state.playerFrame}
+                    left={this.state.playerPos[0] + positionModifier}
+                    frameX={this.state.playerFrameX}
+                    frameY={this.state.playerFrameY}
                     direction={this.state.playerDirection}
                 >
                 </Player>

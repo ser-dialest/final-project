@@ -368,76 +368,86 @@ class Map extends Component {
     }
 
     attack(index) {
-        // animation 
+        // attack animation 
         const swing = (timestamp) => {
             if (t < animationLength) {
                 t++;
-
                 if (t === framesPerTick*2 || t === framesPerTick*8) { this.setState({ playerFrameX: 0, playerFrameY: -96 }); }
                 if (t === framesPerTick*3 || t === framesPerTick*5 || t === framesPerTick*7) { this.setState({ playerFrameX: -72 }); }
                 if (t === framesPerTick*4 || t === framesPerTick*6) { this.setState({ playerFrameX: -144 }); }
                 if (t === framesPerTick*9) { this.setState({ playerFrameX: 0, playerFrameY: 0 }); }
-
-                // if (t % (framesPerTick*4) === 0) {
-                //     this.setState({ playerFrameX: this.state.playerFrameX + 72 });
-                // }
+                requestAnimationFrame(swing);
             }
-            requestAnimationFrame(swing);
+            else { this.setState({ moving: false }, () => this.endTurn(index) )}
         }
 
-
+        // animation parameters
         let t = 0;
         let animationLength = 109;
         let framesPerTick = 12;
-        requestAnimationFrame(swing);
-        //           
-        //         // lock in new map position
-        //         this.setState({
-        //             camera: camera, 
-        //             playerGrid: playerGrid, 
-        //             playerMap: playerStep, 
-        //             tilePos: [0,0],
-        //             npcPos: [0,0],
-        //             () => this.direction(path)
-        //         );
-        //     }
-        // };
 
-        // // animation variables
-        // let t = 0;
-        // let tileWidth = 48;
-        // let pixelsPerTick = 4;
-        // let framesPerTick = 2;
-        // let animationLength = (tileWidth/pixelsPerTick)*framesPerTick ; 
-        
-        // requestAnimationFrame(playerWalking)
-        // }
-        
-        
-        // sound
-        // player attack
-        if (this.state.playerPhase) {
-            const bandits = this.state.bandits;
-            bandits[index].hp -= this.state.player.attack;
-            // if HP <= 0, death animation
-            // remove from aggro bandits
-            // remove from state.bandits
-            // aggroBandits.length === 0, inBattle = false
-            this.setState({ bandits: bandits }, () => console.log(this.state.bandits));
-        // end player phase function
-        }
+        // mark as moving during animation to forbid input
+        this.setState({ moving: true }, () => {
+            if (this.state.bandits[index].map[0] < this.state.playerMap[0]) {
+                this.setState({ playerDirection: -1}, () => requestAnimationFrame(swing));
+            } else if (this.state.bandits[index].map[0] > this.state.playerMap[0]) {
+                this.setState({ playerDirection: 1}, () => requestAnimationFrame(swing));
+            } else { requestAnimationFrame(swing) }
+        });
     }
 
-    endTurn() {
+    endTurn(index) {
         // reset all turn order state variables
+        if (this.state.playerPhase) {
+            let aggroBandits = this.state.aggroBandits;
+            const bandits = this.state.bandits;
+            bandits[index].hp -= this.state.player.attack;
+            let newMap = this.state.mapTravelCost;
+            
+            if (bandits[index].hp <= 0) { 
+                // death animation
+                // remove from aggro bandits
+                let deadAggro = aggroBandits.findIndex(element => element === index);
+                aggroBandits.splice(deadAggro, 1);
+                // repair map
+                console.log(bandits[index].map);
+                console.log(newMap)
+                newMap[bandits[index].map[0]-1][bandits[index].map[1]-1] = 0;
+                console.log(newMap)
+
+                // remove from state.bandits
+                bandits.splice(index, 1);
+            }
+            // aggroBandits.length === 0, inBattle = false
+            this.setState({ bandits: bandits, aggroBandits: aggroBandits }, () => {
+                if (this.state.aggroBandits.length === 0) {
+                    this.setState({ 
+                        inBattle: false, 
+                        playerPhase: false,
+                        selection: false,
+                        actionMenu: false,
+                        canAttack: false,
+                        targeting: false,
+                        mapTravelCost: newMap
+                    }, () => console.log(this.state));
+                } else {
+                    this.setState({ 
+                        playerPhase: true, // this will be false when enemies can go
+                        selection: false,
+                        actionMenu: false,
+                        canAttack: false,
+                        targeting: false,
+                        mapTravelCost: newMap
+                    }, () => console.log(this.state));
+                };
+            });
+        }
         // initiate enemy turn
         // this.state.aggroBandits.forEach( index => {
-            // astar to player
-            // remove last step in path array (so the player doesn't get stepped on)
-            // Move adjacent to player or max of 4 steps on astar path
-            // if adjacent, attack
-
-        // })
+        // astar to player
+        // remove last step in path array (so the player doesn't get stepped on)
+        // Move adjacent to player or max of 4 steps on astar path
+        // if adjacent, attack
     }
 
     dontTreadOnMe() {

@@ -138,6 +138,10 @@ class Map extends Component {
         targetable: []
     }
 
+    localSave() {
+        localStorage.setItem("state", JSON.stringify(this.state));
+    }
+
     // moving starts with this.move(destinationX, destinationY)
     // this.move calculates travel distance to target (maybe unnecesary)
     // and calls path (a function which will be recalled in a cycle with step)
@@ -298,7 +302,7 @@ class Map extends Component {
                     this.step(direction, path);
                 }
             } else {
-                this.setState({moving: false, playerFrameX: 0});
+                this.setState({moving: false, playerFrameX: 0}, () => this.localSave() );
             }
         };
     };

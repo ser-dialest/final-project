@@ -410,11 +410,8 @@ class Map extends Component {
                 let deadAggro = aggroBandits.findIndex(element => element === index);
                 aggroBandits.splice(deadAggro, 1);
                 // repair map
-                console.log(bandits[index].map);
-                console.log(newMap)
+                // I don't rmember why it has to be -1
                 newMap[bandits[index].map[0]-1][bandits[index].map[1]-1] = 0;
-                console.log(newMap)
-
                 // remove from state.bandits
                 bandits.splice(index, 1);
             }
@@ -429,7 +426,7 @@ class Map extends Component {
                         canAttack: false,
                         targeting: false,
                         mapTravelCost: newMap
-                    }, () => console.log(this.state));
+                    }, () => this.startBattleRange());
                 } else {
                     this.setState({ 
                         playerPhase: true, // this will be false when enemies can go

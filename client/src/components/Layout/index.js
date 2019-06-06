@@ -71,7 +71,6 @@ class Layout extends Component {
             aggroBandits: [],
             targetable: [],
             activeBandit: 0,
-            activeBanditPos: [0, 0],
             player: {
                 hp: 8,
                 maxHP: 10, 
@@ -91,6 +90,7 @@ class Layout extends Component {
                     direction: 1,
                     frameX: 0,
                     frameY: 0,
+                    pos: [0, 0]
                 },
                 {
                     hp: 10,
@@ -101,6 +101,7 @@ class Layout extends Component {
                     direction: 1,
                     frameX: 0,
                     frameY: 0,
+                    pos: [0, 0]
                 },
                 {
                     hp: 10,
@@ -111,6 +112,7 @@ class Layout extends Component {
                     direction: 1,
                     frameX: 0,
                     frameY: 0,
+                    pos: [0, 0]
                 },
                 {
                     hp: 10,
@@ -121,6 +123,7 @@ class Layout extends Component {
                     direction: 1,
                     frameX: 0,
                     frameY: 0,
+                    pos: [0, 0]
                 },
                 {
                     hp: 10,
@@ -131,6 +134,7 @@ class Layout extends Component {
                     direction: 1,
                     frameX: 0,
                     frameY: 0,
+                    pos: [0, 0]
                 },
                 {
                     hp: 10,
@@ -141,6 +145,7 @@ class Layout extends Component {
                     direction: 1,
                     frameX: 0,
                     frameY: 0,
+                    pos: [0, 0]
                 },
                 {
                     hp: 10,
@@ -151,6 +156,7 @@ class Layout extends Component {
                     direction: 1,
                     frameX: 0,
                     frameY: 0,
+                    pos: [0, 0]
                 }
             ],
         }
@@ -462,7 +468,6 @@ class Layout extends Component {
                     if (this.state.playerPhase) {
                         this.setState({playerDirection: 1}, () => this.step(direction, path));
                     } else {
-                        console.log(this.state.activeBandit)
                         bandits[this.state.activeBandit].direction = 1;
                         this.setState({bandits: bandits}, () => this.step(direction, path));
                     }
@@ -470,7 +475,6 @@ class Layout extends Component {
                     if (this.state.playerPhase) {
                         this.setState({playerDirection: -1}, () => this.step(direction, path));
                     } else {
-                        console.log(this.state.activeBandit)            
                         bandits[this.state.activeBandit].direction = -1;
                         this.setState({bandits: bandits}, () => this.step(direction, path));
                     }
@@ -486,70 +490,80 @@ class Layout extends Component {
 
     step(direction, path) {
         // position of player after step
-        let playerStep = [
-            this.state.playerMap[0] + direction[0],
-            this.state.playerMap[1] + direction[1]
-        ];
-        // calculation variables
+        let mapMove = false;
         let playerGrid = [];
         let camera = [];
-        let mapMove;
-        // determine where camera position is relative to the x-axis
-        if (playerStep[0] <= 10) {
-            camera.push(10);
-            playerGrid.push(playerStep[0]);
-            if (direction[0] !== 0) {
-                if (camera[0] === this.state.camera[0]) {mapMove = false}
-                else {
-                    mapMove = true;
-                };
+        let bandits = this.state.bandits;
+        let playerStep = [];
+
+        // If playerPhase, camera may move
+        if (this.state.playerPhase) {
+            playerStep = [
+                this.state.playerMap[0] + direction[0],
+                this.state.playerMap[1] + direction[1]
+            ];
+            // calculation variables
+            // determine where camera position is relative to the x-axis
+            if (playerStep[0] <= 10) {
+                camera.push(10);
+                playerGrid.push(playerStep[0]);
+                if (direction[0] !== 0) {
+                    if (camera[0] === this.state.camera[0]) {mapMove = false}
+                    else {
+                        mapMove = true;
+                    };
+                }
+            } else if (playerStep[0] >= 38) {
+                camera.push(38);
+                playerGrid.push(19-(48-(playerStep[0]+1)));
+                if (direction[0] !== 0) {
+                    if (camera[0] === this.state.camera[0]) {mapMove = false}
+                    else {
+                        mapMove = true;
+                    };
+                }
+            } else {
+                camera.push(playerStep[0]);
+                playerGrid.push(10);
+                if (direction[0] !== 0) { mapMove = true; }
             }
-        } else if (playerStep[0] >= 38) {
-            camera.push(38);
-            playerGrid.push(19-(48-(playerStep[0]+1)));
-            if (direction[0] !== 0) {
-                if (camera[0] === this.state.camera[0]) {mapMove = false}
-                else {
-                    mapMove = true;
-                 };
+            // determine where camera position is relative to the y-axis
+            if (playerStep[1] <= 7) {
+                camera.push(7);
+                playerGrid.push(playerStep[1]);
+                if (direction[1] !== 0) {
+                    if (camera[1] === this.state.camera[1]) {mapMove = false}
+                    else {
+                        mapMove = true;
+                    };
+                }
+            } else if (playerStep[1] >= 41) {
+                camera.push(41);
+                playerGrid.push(13-(48-(playerStep[1]+1)));
+                if (direction[1] !== 0) {
+                    if (camera[1] === this.state.camera[1]) {mapMove = false}
+                    else {
+                        mapMove = true;
+                    };
+                }
+            } else {
+                camera.push(playerStep[1]);
+                playerGrid.push(7);
+                if (direction[1] !== 0) { mapMove = true; }
             }
-        } else {
-            camera.push(playerStep[0]);
-            playerGrid.push(10);
-            if (direction[0] !== 0) { mapMove = true; }
-        }
-        // determine where camera position is relative to the y-axis
-        if (playerStep[1] <= 7) {
-            camera.push(7);
-            playerGrid.push(playerStep[1]);
-            if (direction[1] !== 0) {
-                if (camera[1] === this.state.camera[1]) {mapMove = false}
-                else {
-                    mapMove = true;
-                };
-            }
-        } else if (playerStep[1] >= 41) {
-            camera.push(41);
-            playerGrid.push(13-(48-(playerStep[1]+1)));
-            if (direction[1] !== 0) {
-                if (camera[1] === this.state.camera[1]) {mapMove = false}
-                else {
-                    mapMove = true;
-                };
-            }
-        } else {
-            camera.push(playerStep[1]);
-            playerGrid.push(7);
-            if (direction[1] !== 0) { mapMove = true; }
         }
         
         const playerWalking = (timestamp) => {
             if (t < animationLength) {
                 t++;
-
                 if (t % framesPerTick === 0) {
                     if (t % (framesPerTick*4) === 0) {
-                        this.setState({ playerFrameX: this.state.playerFrameX + 72 });
+                        if (this.state.playerPhase) {
+                            this.setState({ playerFrameX: this.state.playerFrameX + 72 });
+                        } else {
+                            bandits[this.state.activeBandit].frameX += 72;
+                            this.setState({ bandits: bandits});
+                        }
                     }
                     if (mapMove) {
                         this.setState({
@@ -565,25 +579,46 @@ class Layout extends Component {
                             () => requestAnimationFrame(playerWalking)
                         );
                     } else {
-                        this.setState({playerPos: [
-                            this.state.playerPos[0]+(direction[0]*pixelsPerTick),
-                            this.state.playerPos[1]+(direction[1]*pixelsPerTick)
-                        ]}, 
-                            () => requestAnimationFrame(playerWalking)
-                        );
+                        if (this.state.playerPhase) {
+                            this.setState({playerPos: [
+                                this.state.playerPos[0]+(direction[0]*pixelsPerTick),
+                                this.state.playerPos[1]+(direction[1]*pixelsPerTick)
+                            ]}, 
+                                () => requestAnimationFrame(playerWalking)
+                            );
+                        } else {
+                            bandits[this.state.activeBandit].pos[0] += (direction[0]*pixelsPerTick);
+                            bandits[this.state.activeBandit].pos[1] += (direction[1]*pixelsPerTick);
+                            this.setState({ bandits: bandits }, 
+                                () => requestAnimationFrame(playerWalking)
+                            );
+                        }
                     }
                 } else { requestAnimationFrame(playerWalking) }
-            } else {                
-                // lock in new map position
-                this.setState({
-                    camera: camera, 
-                    playerGrid: playerGrid, 
-                    playerMap: playerStep, 
-                    tilePos: [0,0],
-                    npcPos: [0,0],
-                    playerPos: [0,0] }, 
-                    () => this.direction(path)
-                );
+            } else {
+                if (this.state.playerPhase) {
+                    // lock in new map position
+                    this.setState({
+                        camera: camera, 
+                        playerGrid: playerGrid, 
+                        playerMap: playerStep, 
+                        tilePos: [0,0],
+                        npcPos: [0,0],
+                        playerPos: [0,0] }, 
+                        () => this.direction(path)
+                    );
+                } else {
+                    bandits[this.state.activeBandit].map[0] += direction[0];
+                    bandits[this.state.activeBandit].map[1] += direction[1];
+                    bandits[this.state.activeBandit].pos[0] = 0;
+                    bandits[this.state.activeBandit].pos[1] = 0;
+                    this.setState({ bandits: bandits }, 
+                        () => { 
+                            console.log(bandits[this.state.activeBandit]);
+                            this.direction(path)
+                        }
+                    );
+                }
             }
         };
 

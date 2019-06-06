@@ -12,7 +12,8 @@ function Enemy(props) {
                 top:`${props.top}px`,
                 left:`${props.left}px`,
                 position:"relative",
-                backgroundPositionX:`${props.frame}px`,
+                backgroundPositionX:`${props.frameX}px`,
+                backgroundPositionY:`${props.frameY}px`,
                 transform: `scaleX(${props.direction})`,
                 zIndex: `${props.gridDisplay.y * 2}`
             }}

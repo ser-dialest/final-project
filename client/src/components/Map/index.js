@@ -92,8 +92,8 @@ function Map(props) {
         enemies.push(
             <Enemy
                 gridDisplay={props.gridDisplay(each.map)}
-                top={props.npcPos[1]}
-                left={props.npcPos[0]}
+                top={props.playerPhase ? props.npcPos[1]: each.pos[1]}
+                left={props.playerPhase ? props.npcPos[0]: each.pos[0]}
                 frameX={each.frameX}
                 frameY={each.frameY}
                 direction={each.direction}

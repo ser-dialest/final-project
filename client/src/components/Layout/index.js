@@ -455,10 +455,14 @@ class Layout extends Component {
 
     direction(path) {
         // If not in battle, check to see if in range for battle to start
+        let bandits = this.state.bandits
         if (!this.state.inBattle && this.inRange(this.state.playerMap, this.state.startBattleRange)) {
             this.startBattle();
+        } else if (!this.state.playerPhase && 
+            this.inRange(this.state.playerMap, this.adjacent(bandits[this.state.activeBandit].map))
+        ) { 
+            this.attack(this.state.activeBandit);
         } else {
-            let bandits = this.state.bandits
             // direction array based on unit circle
             if (path.length > 1) {
                 let direction = [path[1][0] - path[0][0], path[1][1] - path[0][1]];
@@ -614,7 +618,6 @@ class Layout extends Component {
                     bandits[this.state.activeBandit].pos[1] = 0;
                     this.setState({ bandits: bandits }, 
                         () => { 
-                            console.log(bandits[this.state.activeBandit]);
                             this.direction(path)
                         }
                     );
@@ -637,16 +640,47 @@ class Layout extends Component {
 
     attack(index) {
         // attack animation 
+        let bandits = this.state.bandits;
         const swing = (timestamp) => {
             if (t < animationLength) {
                 t++;
-                if (t === framesPerTick*2 || t === framesPerTick*8) { this.setState({ playerFrameX: 0, playerFrameY: -96 }); }
-                if (t === framesPerTick*3 || t === framesPerTick*5 || t === framesPerTick*7) { this.setState({ playerFrameX: -72 }); }
-                if (t === framesPerTick*4 || t === framesPerTick*6) { this.setState({ playerFrameX: -144 }); }
-                if (t === framesPerTick*9) { this.setState({ playerFrameX: 0, playerFrameY: 0 }); }
+                if (t === framesPerTick*2 || t === framesPerTick*8) { 
+                    if (this.state.playerPhase) {
+                        this.setState({ playerFrameX: 0, playerFrameY: -96 }); 
+                    } else { 
+                        bandits[this.state.activeBandit].frameX = 0;
+                        bandits[this.state.activeBandit].frameY = -96;
+                        this.setState({bandits: bandits});
+                    }
+                }
+                if (t === framesPerTick*3 || t === framesPerTick*5 || t === framesPerTick*7) {
+                    if (this.state.playerPhase) {
+                        this.setState({ playerFrameX: -72 }); 
+                    } else { 
+                        bandits[this.state.activeBandit].frameX = -72;
+                        this.setState({bandits: bandits});
+                    }
+                }
+                if (t === framesPerTick*4 || t === framesPerTick*6) {
+                    if (this.state.playerPhase) {
+                        this.setState({ playerFrameX: -144 }); 
+                    } else {
+                        bandits[this.state.activeBandit].frameX = -144;
+                        this.setState({bandits: bandits});
+                    }
+                }
+                if (t === framesPerTick*9) {
+                    if (this.state.playerPhase) {
+                        this.setState({ playerFrameX: 0, playerFrameY: 0 }); 
+                    } else {
+                        bandits[this.state.activeBandit].frameX = 0;
+                        bandits[this.state.activeBandit].frameY = 0;
+                        this.setState({bandits: bandits});
+                    }
+                }
                 requestAnimationFrame(swing);
             }
-            else { 
+            else if (this.state.playerPhase) { 
                 let aggroBandits = this.state.aggroBandits;
                 const bandits = this.state.bandits;
                 bandits[index].hp -= this.state.player.attack;
@@ -674,9 +708,11 @@ class Layout extends Component {
         // mark as moving during animation to forbid input
         this.setState({ moving: true }, () => {
             if (this.state.bandits[index].map[0] < this.state.playerMap[0]) {
-                this.setState({ playerDirection: -1}, () => requestAnimationFrame(swing));
+                bandits[index].direction = 1;
+                this.setState({ playerDirection: -1, bandits: bandits }, () => requestAnimationFrame(swing));
             } else if (this.state.bandits[index].map[0] > this.state.playerMap[0]) {
-                this.setState({ playerDirection: 1}, () => requestAnimationFrame(swing));
+                bandits[index].direction = -1;
+                this.setState({ playerDirection: 1, bandits: bandits}, () => requestAnimationFrame(swing));
             } else { requestAnimationFrame(swing) }
         });
     }
@@ -707,10 +743,11 @@ class Layout extends Component {
             }
         }, startPos, endPos);
         let path = aStarPath.map( element => [element.x, element.y]);
-        while (path.length > this.state.bandits[index].speed +1) {
+        while (path.length > this.state.bandits[index].speed + 1) {
             path.pop();
         }
-        this.direction(path); // Or it would be if it would move the enemy
+        console.log(path)
+        this.direction(path);
     }
     
 

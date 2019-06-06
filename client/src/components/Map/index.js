@@ -89,11 +89,14 @@ function Map(props) {
     let i = 0;
     props.bandits.forEach( each => {
         i++;
+        let positionModifier = 0
+        if (each.direction === -1) { positionModifier = -24}
+
         enemies.push(
             <Enemy
                 gridDisplay={props.gridDisplay(each.map)}
                 top={props.playerPhase ? props.npcPos[1]: each.pos[1]}
-                left={props.playerPhase ? props.npcPos[0]: each.pos[0]}
+                left={props.playerPhase ? props.npcPos[0] + positionModifier: each.pos[0] + positionModifier}
                 frameX={each.frameX}
                 frameY={each.frameY}
                 direction={each.direction}

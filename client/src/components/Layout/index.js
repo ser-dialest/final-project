@@ -26,12 +26,12 @@ class Layout extends Component {
         this.attackAction = this.attackAction.bind(this);
         this.backAction = this.backAction.bind(this);
         this.checkAttack = this.checkAttack.bind(this);
+        this.endTurn = this.endTurn.bind(this);
         this.gridDisplay = this.gridDisplay.bind(this);
         this.move = this.move.bind(this);
         this.outOfRange = this.outOfRange.bind(this);
         this.selectionFalse = this.selectionFalse.bind(this);
         this.selectionTrue = this.selectionTrue.bind(this);
-        this.waitAction = this.waitAction.bind(this);
 
         this.state = {
             loggedIn: false,
@@ -43,7 +43,7 @@ class Layout extends Component {
             startBattleRange: [],
             moving: false,
             inBattle: false,
-            playerPhase: false,
+            playerPhase: true,
             selection: false,
             actionMenu: false,
             canAttack: false,
@@ -70,6 +70,8 @@ class Layout extends Component {
             tilePos: [0, 0],
             aggroBandits: [],
             targetable: [],
+            activeBandit: 0,
+            activeBanditPos: [0, 0],
             player: {
                 hp: 8,
                 maxHP: 10, 
@@ -80,7 +82,7 @@ class Layout extends Component {
             },
             npcPos: [0, 0],
             bandits: [
-                {   
+                {
                     hp: 10,
                     speed: 4,
                     attack: 3,
@@ -343,7 +345,7 @@ class Layout extends Component {
     }
 
     // FUNCTIONS FOR THE ACTION MENU
-    // backAction, waitAction, attackAction
+    // backAction, attackAction
 
     backAction() {
         this.setState({ 
@@ -351,10 +353,6 @@ class Layout extends Component {
             camera: this.state.confirmOrigin, 
             playerGrid: this.state.confirmPlayerGrid, 
             playerMap: this.state.confirmPlayerMap});
-    }
-
-    waitAction() {
-        this.setState({ actionMenu: false, selection: false});
     }
 
     attackAction() {
@@ -392,55 +390,30 @@ class Layout extends Component {
         this.setState({ targeting: false, actionMenu: true });
     }
 
-    endTurn(index) {
-        // reset all turn order state variables
-        if (this.state.playerPhase) {
-            let aggroBandits = this.state.aggroBandits;
-            const bandits = this.state.bandits;
-            bandits[index].hp -= this.state.player.attack;
-            let newMap = this.state.mapTravelCost;
-            
-            if (bandits[index].hp <= 0) { 
-                // death animation
-                // remove from aggro bandits
-                let deadAggro = aggroBandits.findIndex(element => element === index);
-                aggroBandits.splice(deadAggro, 1);
-                // repair map
-                // I don't rmember why it has to be -1
-                newMap[bandits[index].map[0]-1][bandits[index].map[1]-1] = 0;
-                // remove from state.bandits
-                bandits.splice(index, 1);
-            }
-            // aggroBandits.length === 0, inBattle = false
-            this.setState({ bandits: bandits, aggroBandits: aggroBandits }, () => {
-                if (this.state.aggroBandits.length === 0) {
-                    this.setState({ 
-                        inBattle: false, 
-                        playerPhase: false,
-                        selection: false,
-                        actionMenu: false,
-                        canAttack: false,
-                        targeting: false,
-                        mapTravelCost: newMap
-                    }, () => this.startBattleRange());
-                } else {
-                    this.setState({ 
-                        playerPhase: true, // this will be false when enemies can go
-                        selection: false,
-                        actionMenu: false,
-                        canAttack: false,
-                        targeting: false,
-                        mapTravelCost: newMap
-                    }, () => console.log(this.state));
-                };
-            });
-        }
-        // initiate enemy turn
-        // this.state.aggroBandits.forEach( index => {
-        // astar to player
-        // remove last step in path array (so the player doesn't get stepped on)
-        // Move adjacent to player or max of 4 steps on astar path
-        // if adjacent, attack
+    endTurn() {
+        let newMap = this.dontTreadOnMe();
+        // End battle if aggrBandits are dead
+        if (this.state.aggroBandits.length === 0) {
+            this.setState({ 
+                inBattle: false, 
+                playerPhase: true,
+                selection: false,
+                actionMenu: false,
+                canAttack: false,
+                targeting: false,
+                mapTravelCost: newMap
+            }, () => this.startBattleRange());
+        } else {
+            // It's the enemies' turn
+            this.setState({ 
+                playerPhase: false, // this will be false when enemies can go
+                selection: false,
+                actionMenu: false,
+                canAttack: false,
+                targeting: false,
+                mapTravelCost: newMap
+            }, () => this.enemyTurn());
+        };
     }
 
     // FUNCTIONS FOR MOVEMENT: 
@@ -479,20 +452,34 @@ class Layout extends Component {
         if (!this.state.inBattle && this.inRange(this.state.playerMap, this.state.startBattleRange)) {
             this.startBattle();
         } else {
+            let bandits = this.state.bandits
             // direction array based on unit circle
             if (path.length > 1) {
                 let direction = [path[1][0] - path[0][0], path[1][1] - path[0][1]];
                 path.shift();
                 // determine direction player faces
                 if (direction[0] === 1) {
-                    this.setState({playerDirection: 1}, () => this.step(direction, path))
+                    if (this.state.playerPhase) {
+                        this.setState({playerDirection: 1}, () => this.step(direction, path));
+                    } else {
+                        console.log(this.state.activeBandit)
+                        bandits[this.state.activeBandit].direction = 1;
+                        this.setState({bandits: bandits}, () => this.step(direction, path));
+                    }
                 } else if (direction[0] === -1) {
-                    this.setState({playerDirection: -1}, () => this.step(direction, path))
+                    if (this.state.playerPhase) {
+                        this.setState({playerDirection: -1}, () => this.step(direction, path));
+                    } else {
+                        console.log(this.state.activeBandit)            
+                        bandits[this.state.activeBandit].direction = -1;
+                        this.setState({bandits: bandits}, () => this.step(direction, path));
+                    }
                 } else {
                     this.step(direction, path);
                 }
             } else {
-                this.setState({moving: false, playerFrameX: 0});
+                bandits[this.state.activeBandit].frameX = 0;
+                this.setState({moving: false, playerFrameX: 0, bandits: bandits});
             }
         };
     };
@@ -624,7 +611,24 @@ class Layout extends Component {
                 if (t === framesPerTick*9) { this.setState({ playerFrameX: 0, playerFrameY: 0 }); }
                 requestAnimationFrame(swing);
             }
-            else { this.setState({ moving: false }, () => this.endTurn(index) )}
+            else { 
+                let aggroBandits = this.state.aggroBandits;
+                const bandits = this.state.bandits;
+                bandits[index].hp -= this.state.player.attack;
+                if (bandits[index].hp <= 0) { 
+                    // death animation
+                    // remove from aggro bandits
+                    let deadAggro = aggroBandits.findIndex(element => element === index);
+                    aggroBandits.splice(deadAggro, 1);
+                    // remove from state.bandits
+                    bandits.splice(index, 1); // this causes aggroBandits not sync with bandits
+                    aggroBandits.forEach(element => {
+                        // Need to reduce the index of aggroBandits with a higher index than the one removed
+                        if (element > index) { aggroBandits[element] = aggroBandits[element] -1 };
+                    });
+                }
+                this.setState({ bandits: bandits, aggroBandits: aggroBandits }, () => this.endTurn(index) );
+            }
         }
 
         // animation parameters
@@ -641,6 +645,40 @@ class Layout extends Component {
             } else { requestAnimationFrame(swing) }
         });
     }
+
+    // FUNCTIONS FOR BANDIT BEHAVIOR
+
+    enemyTurn() {
+        // this causes them to all move at the same time... not what I want
+        // this.state.aggroBandits.forEach( bandit => this.enemyMove(bandit) );
+        this.setState({activeBandit: this.state.aggroBandits[0]},
+            () => this.enemyMove(this.state.activeBandit)
+        );
+                // remove last step in path array (so the player doesn't get stepped on)
+        // Move adjacent to player or max of 4 steps on astar path
+        // if adjacent, attack
+    }
+
+    enemyMove(index) {
+        const startPos = { x: this.state.bandits[index].map[0] , y: this.state.bandits[index].map[1] }; 
+        const endPos = { x: this.state.playerMap[0] , y: this.state.playerMap[1] }; 
+        let walkable = this.dontTreadOnMe();
+        walkable[startPos.x][startPos.y] = 0;
+        const aStarPath = aStar((x, y)=>{
+            if (walkable[x-1][y-1] === 0) {
+                return true; // 0 means road
+            } else {
+                return false; // 1 means wall
+            }
+        }, startPos, endPos);
+        let path = aStarPath.map( element => [element.x, element.y]);
+        while (path.length > this.state.bandits[index].speed +1) {
+            path.pop();
+        }
+        this.direction(path); // Or it would be if it would move the enemy
+    }
+    
+
 
     render() {
         return (
@@ -685,7 +723,7 @@ class Layout extends Component {
                             outOfRange={this.outOfRange}
                             selectionFalse={this.selectionFalse}
                             selectionTrue={this.selectionTrue}
-                            waitAction={this.waitAction}
+                            waitAction={this.endTurn}
                         ></Map>
                     </div>
                     <div className="borders"></div>

@@ -25,12 +25,14 @@ function Map(props) {
             let id = "x" + (x + 1) + "y" + (y + 1);
             let clickFunc;
             let imageSource = map[mapX-1][mapY-1].image;
-            // Only accept commands if we aren't moving
-            if (!props.moving) {
+
+            // The block beginning with this if statements controlls the onClick events for all tiles
+            // It has no impact on the movement or appearance of any components.
+            if (!props.moving) { // Only accept commands if we aren't moving
                 // Free move as not in battle
                 if (!props.inBattle) {
                     clickFunc = () => props.move(mapX, mapY);
-                } else if (props.playerPhase) {
+                } else if (props.playerPhase) { // effectively if playerPhase && inBattle
                     // this is the player's turn
                     // if no one has been selected, selecting is all you can do
                     if (!props.selection) {

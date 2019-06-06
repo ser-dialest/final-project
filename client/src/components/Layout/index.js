@@ -34,8 +34,8 @@ class Layout extends Component {
         this.waitAction = this.waitAction.bind(this);
 
         this.state = {
-            loggedIn: true,
-            userName: "dialest",
+            loggedIn: false,
+            userName: "",
             signingIn: "none",
             createUser: false,
             centerGrid: {x: 10, y: 7},
@@ -168,7 +168,7 @@ class Layout extends Component {
     logInSuccess(data) {
         // receive user data
         localStorage.setItem("token", data.token);
-        this.setState({ loggedIn: true, userName: data.username, signingIn: "none" });
+        this.setState({ loggedIn: true, userName: data.username, signingIn: "none" }, () => {this.load()});
     }
 
     hideSignIn(event) {

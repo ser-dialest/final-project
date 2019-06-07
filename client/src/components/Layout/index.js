@@ -395,7 +395,10 @@ class Layout extends Component {
         let newMap = this.dontTreadOnMe();
         // End battle if aggrBandits are dead
         if (this.state.aggroBandits.length === 0) {
-            this.setState({ 
+            let player = this.state.player;
+            player.hp = 10;
+            this.setState({
+                player: player, 
                 inBattle: false,
                 moving: false,
                 playerPhase: true,

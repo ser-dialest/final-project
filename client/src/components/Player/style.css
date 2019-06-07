@@ -3,7 +3,6 @@
     bottom: 0px;
     left: 0px; */
     background-image: url("./Player3.png");
-    display: inline-block;
     pointer-events: none;
     width: 72px;
 }

@@ -17,7 +17,8 @@ function Player(props) {
                 backgroundPositionX:`${props.frameX}px`,
                 backgroundPositionY:`${props.frameY}px`,
                 transform: `scaleX(${props.direction})`,
-                zIndex: `${props.playerGrid[1]*2 + zModifier}`
+                zIndex: `${props.playerGrid[1]*2 + zModifier}`,
+                display: `${props.gameOver ? "none" : "inline-block"}`
             }}
             id="player"
             alt="player"

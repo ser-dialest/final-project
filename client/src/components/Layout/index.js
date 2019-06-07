@@ -1,10 +1,3 @@
-// HEY  JEFFREY LOOK AT ME
-// WHEN AN ENEMY MOVES, HIS POSITION CAN NO LONGER BE TIED TO NPCPOS OR EVERYONE WILL MOVE
-// DEPENDENCE ON THAT MUST BE CONDITIONAL
-// IN THIS ITERATION, ONLY ONE ENEMY WILL MOVE AT A TIME,
-// SO WE CAN GET AWAY WITH THERE JUST BEING ONE ENEMYPOS VARIABLE IN STATE
-// THANK GOD FOR INDICES
-
 import React, { Component } from "react";
 import Map from "../Map";
 import User from "../User";
@@ -34,6 +27,7 @@ class Layout extends Component {
         this.selectionTrue = this.selectionTrue.bind(this);
 
         this.state = {
+            gameOver: false,
             loggedIn: false,
             userName: "",
             signingIn: "none",
@@ -72,7 +66,7 @@ class Layout extends Component {
             targetable: [],
             activeBandit: 0,
             player: {
-                hp: 8,
+                hp: 10,
                 maxHP: 10, 
                 speed: 4,
                 attack: 3,
@@ -205,6 +199,7 @@ class Layout extends Component {
                 let r = JSON.parse(response.data)
                 this.setState({
                     centerGrid: r.centerGrid,
+                    gameOver: r.gameOver,
                     mapTravelCost: r.mapTravelCost,
                     startBattleRange: r.startBattleRange,
                     moving: r.moving,
@@ -303,7 +298,7 @@ class Layout extends Component {
     }
 
     dontTreadOnMe() {
-        let walkable = this.state.mapTravelCost;
+        let walkable = map.map( row => row.map( column => column.travelCost));
         this.state.bandits.forEach( each => {
             walkable[each.map[0]-1][each.map[1]-1] = 1;
         });
@@ -401,14 +396,18 @@ class Layout extends Component {
         // End battle if aggrBandits are dead
         if (this.state.aggroBandits.length === 0) {
             this.setState({ 
-                inBattle: false, 
+                inBattle: false,
+                moving: false,
                 playerPhase: true,
                 selection: false,
                 actionMenu: false,
                 canAttack: false,
                 targeting: false,
                 mapTravelCost: newMap
-            }, () => this.startBattleRange());
+            }, () => {
+                console.log(this.state);
+                this.startBattleRange()
+            });
         } else {
             // It's the enemies' turn
             this.setState({ 
@@ -424,15 +423,6 @@ class Layout extends Component {
 
     // FUNCTIONS FOR MOVEMENT: 
     // move, direction, step
-
-    // moving starts with this.move(destinationX, destinationY)
-    // this.move calculates travel distance to target (maybe unnecesary)
-    // and calls path (a function which will be recalled in a cycle with step)
-    // Matt says that's probably wrong or unnecessary once the a* goes in
-    // path calculates the direction we're moving and then executes animation function, step
-    // step determines if the camera or player moves and handles the animation before kicking back to path, 
-    // which determines the remaining distance and direction of the next step
-    // repeat until delta = [0,0]
 
     move(mapX, mapY) {
         // check if it is a walkable tile
@@ -488,6 +478,7 @@ class Layout extends Component {
             } else {
                 bandits[this.state.activeBandit].frameX = 0;
                 this.setState({moving: false, playerFrameX: 0, bandits: bandits});
+                if (!this.state.playerPhase) { this.endEnemyTurn(this.state.activeBandit)}
             }
         };
     };
@@ -506,7 +497,6 @@ class Layout extends Component {
                 this.state.playerMap[0] + direction[0],
                 this.state.playerMap[1] + direction[1]
             ];
-            // calculation variables
             // determine where camera position is relative to the x-axis
             if (playerStep[0] <= 10) {
                 camera.push(10);
@@ -679,8 +669,7 @@ class Layout extends Component {
                     }
                 }
                 requestAnimationFrame(swing);
-            }
-            else if (this.state.playerPhase) { 
+            } else if (this.state.playerPhase) { 
                 let aggroBandits = this.state.aggroBandits;
                 const bandits = this.state.bandits;
                 bandits[index].hp -= this.state.player.attack;
@@ -696,8 +685,17 @@ class Layout extends Component {
                         if (element > index) { aggroBandits[element] = aggroBandits[element] -1 };
                     });
                 }
+                console.log(aggroBandits);
                 this.setState({ bandits: bandits, aggroBandits: aggroBandits }, () => this.endTurn(index) );
-            }
+            } else {
+                let player = this.state.player;
+                player.hp -= this.state.bandits[index].attack;
+                if (player.hp <= 0 ) {
+                    this.setState({ gameOver: true })
+                } else {
+                    this.setState({ player: player }, () => this.endEnemyTurn(index));
+                }
+            } 
         }
 
         // animation parameters
@@ -720,14 +718,9 @@ class Layout extends Component {
     // FUNCTIONS FOR BANDIT BEHAVIOR
 
     enemyTurn() {
-        // this causes them to all move at the same time... not what I want
-        // this.state.aggroBandits.forEach( bandit => this.enemyMove(bandit) );
         this.setState({activeBandit: this.state.aggroBandits[0]},
             () => this.enemyMove(this.state.activeBandit)
         );
-                // remove last step in path array (so the player doesn't get stepped on)
-        // Move adjacent to player or max of 4 steps on astar path
-        // if adjacent, attack
     }
 
     enemyMove(index) {
@@ -746,8 +739,16 @@ class Layout extends Component {
         while (path.length > this.state.bandits[index].speed + 1) {
             path.pop();
         }
-        console.log(path)
         this.direction(path);
+    }
+
+    endEnemyTurn(index) {
+        if (this.state.aggroBandits.indexOf(index) < this.state.aggroBandits.length - 1) {
+            index++;
+            this.enemyMove(index);
+        } else {
+            this.setState({ playerPhase: true, moving: false });
+        }
     }
     
 
@@ -770,6 +771,7 @@ class Layout extends Component {
                             bandits={this.state.bandits}
                             camera={this.state.camera}
                             canAttack={this.state.canAttack}
+                            gameOver={this.state.gameOver}
                             inBattle={this.state.inBattle}
                             moving={this.state.moving}
                             npcPos={this.state.npcPos}

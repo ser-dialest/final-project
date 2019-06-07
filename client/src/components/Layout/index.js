@@ -477,8 +477,9 @@ class Layout extends Component {
                 }
             } else {
                 bandits[this.state.activeBandit].frameX = 0;
-                this.setState({moving: false, playerFrameX: 0, bandits: bandits});
-                if (!this.state.playerPhase) { this.endEnemyTurn(this.state.activeBandit)}
+                this.setState({moving: false, playerFrameX: 0, bandits: bandits}, () => {
+                    if (!this.state.playerPhase) { this.endEnemyTurn(this.state.activeBandit)}
+                });
             }
         };
     };
@@ -735,6 +736,7 @@ class Layout extends Component {
                 return false; // 1 means wall
             }
         }, startPos, endPos);
+
         let path = aStarPath.map( element => [element.x, element.y]);
         while (path.length > this.state.bandits[index].speed + 1) {
             path.pop();
@@ -745,7 +747,9 @@ class Layout extends Component {
     endEnemyTurn(index) {
         if (this.state.aggroBandits.indexOf(index) < this.state.aggroBandits.length - 1) {
             index++;
-            this.enemyMove(index);
+            this.setState({ activeBandit: this.state.aggroBandits[index]}, () => {
+                this.enemyMove(this.state.aggroBandits[index])
+            });
         } else {
             this.setState({ playerPhase: true, moving: false });
         }

@@ -66,7 +66,7 @@ class Layout extends Component {
             targetable: [],
             activeBandit: 0,
             player: {
-                hp: 10,
+                hp: 3,
                 maxHP: 10, 
                 speed: 4,
                 attack: 3,
@@ -678,11 +678,12 @@ class Layout extends Component {
                     }
                 }
                 requestAnimationFrame(swing);
-            } else if (this.state.playerPhase) {
-                const aggroBandits = this.state.aggroBandits;
+            } else if (this.state.playerPhase) { 
                 bandits[index].hp -= this.state.player.attack;
                 if (bandits[index].hp <= 0) { 
                     // death animation
+                    t = 0;
+                    animationLength = 163;
                     requestAnimationFrame(death);
                 } else {
                     bandits[index].frameY = 0;
@@ -692,20 +693,20 @@ class Layout extends Component {
                 let player = this.state.player;
                 player.hp -= this.state.bandits[index].attack;
                 if (player.hp <= 0 ) {
+                    t = 0;
+                    animationLength = 163;
                     requestAnimationFrame(death);
-                    this.setState({ gameOver: true })
                 } else {
                     this.setState({ player: player, playerFrameY: 0 }, () => this.endEnemyTurn(index));
                 }
             } 
+            
         }
-
+        
         const death = (timestamp) => {
-            let t=0;
             if (t < animationLength) {
+                console.log(t);
                 t++
-            console.log("death");
-
                 if ( t === framesPerTick*2) {
                     if (this.state.playerPhase) {
                         bandits[index].frameX = -72;
@@ -713,8 +714,7 @@ class Layout extends Component {
                     } else { 
                         this.setState({playerFrameX: -72});
                     }
-                }
-                if ( t === framesPerTick*4) {
+                } else if ( t === framesPerTick*3) {
                     if (this.state.playerPhase) {
                         bandits[index].frameX = -144;
                         this.setState({ bandits: bandits }); 
@@ -722,18 +722,22 @@ class Layout extends Component {
                         this.setState({playerFrameX: -144});
                     }
                 }
+                requestAnimationFrame(death);
             } else {
-                // remove from aggro bandits
-                const aggroBandits = this.state.aggroBandits;
-                let deadAggro = aggroBandits.findIndex(element => element === index);
-                aggroBandits.splice(deadAggro, 1);
-                // remove from state.bandits
-                bandits.splice(index, 1); // this causes aggroBandits not sync with bandits
-                aggroBandits.forEach(element => {
-                    // Need to reduce the index of aggroBandits with a higher index than the one removed
-                    if (element > index) { aggroBandits[element] = aggroBandits[element] -1 };
-                });
-                this.setState({ bandits: bandits, aggroBandits: aggroBandits }, () => this.endTurn(index) );
+                if (this.state.playerPhase) {
+                    // remove from aggro bandits
+                    let deadAggro = aggroBandits.findIndex(element => element === index);
+                    aggroBandits.splice(deadAggro, 1);
+                    // remove from state.bandits
+                    bandits.splice(index, 1); // this causes aggroBandits not sync with bandits
+                    aggroBandits.forEach(element => {
+                        // Need to reduce the index of aggroBandits with a higher index than the one removed
+                        if (element > index) { aggroBandits[element] = aggroBandits[element] -1 };
+                    });
+                    this.setState({ bandits: bandits, aggroBandits: aggroBandits }, () => this.endTurn(index) );
+                } else {
+                    this.setState({ gameOver: true })
+                }
 
             }
         }
@@ -745,6 +749,8 @@ class Layout extends Component {
         let framesPerTick = 12;
 
         let bandits = this.state.bandits;
+        let aggroBandits = this.state.aggroBandits;
+
         let playerDirection = this.state.playerDirection;
         // mark as moving during animation to forbid input
         this.setState({ moving: true }, () => {

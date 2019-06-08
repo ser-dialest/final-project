@@ -44,14 +44,21 @@ function Map(props) {
                         if (!props.actionMenu) {
                             // When you're targeting an enemy
                             if (props.targeting) {
+                                let targetTile = false;
+                                let attackIndex;
                                 props.targetable.forEach(index => {
                                     if (props.inRange([mapX, mapY], [props.bandits[index].map])) {
                                         imageSource = target;
-                                        clickFunc = () => props.attack(index);
-                                    } else {
-                                        clickFunc = () => props.outOfRange();
-                                    }
+                                        targetTile = true;
+                                        attackIndex = index
+                                    } 
                                 });
+                                if (targetTile) {
+                                    clickFunc = () => props.attack(attackIndex);
+                                }
+                                else {
+                                    clickFunc = () => props.outOfRange();
+                                }
                             } else if (props.inRange([mapX, mapY], props.playerRange)) {
                                 imageSource = playerRange;
                                 clickFunc = () => props.checkAttack(mapX, mapY);

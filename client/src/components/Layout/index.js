@@ -155,7 +155,7 @@ class Layout extends Component {
             ],
             villager: {
                 hp: 10,
-                map: [31, 36],
+                map: [32, 38],
                 direction: 1,
                 frameX: 0,
                 frameY: 0,

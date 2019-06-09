@@ -66,7 +66,7 @@ class Layout extends Component {
             targetable: [],
             activeBandit: 0,
             player: {
-                hp: 3,
+                hp: 10,
                 maxHP: 10, 
                 speed: 4,
                 attack: 3,
@@ -87,7 +87,7 @@ class Layout extends Component {
                     pos: [0, 0]
                 },
                 {
-                    hp: 3,
+                    hp: 10,
                     speed: 4,
                     attack: 3,
                     map: [18, 5],
@@ -153,6 +153,13 @@ class Layout extends Component {
                     pos: [0, 0]
                 }
             ],
+            villager: {
+                hp: 10,
+                map: [31, 36],
+                direction: 1,
+                frameX: 0,
+                frameY: 0,
+            }
         }
     }
 
@@ -705,7 +712,6 @@ class Layout extends Component {
         
         const death = (timestamp) => {
             if (t < animationLength) {
-                console.log(t);
                 t++
                 if ( t === framesPerTick*2) {
                     if (this.state.playerPhase) {
@@ -848,7 +854,8 @@ class Layout extends Component {
                             targetable={this.state.targetable}
                             targeting={this.state.targeting}
                             tilePos={this.state.tilePos}
-
+                            villager={this.state.villager}
+                            
                             attack={this.attack}
                             attackAction={this.attackAction}
                             backAction={this.backAction}

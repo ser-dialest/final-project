@@ -1,0 +1,8 @@
+.villager {
+    /* position: absolute;
+    bottom: 0px;
+    left: 0px; */
+    background-image: url("./Villager3.png");
+    pointer-events: none;
+    width: 72px
+}

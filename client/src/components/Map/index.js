@@ -3,6 +3,7 @@ import Tile from "../Tile";
 import ActionMenu from "../ActionMenu"
 import Player from "../Player";
 import Enemy from "../Enemy";
+import Villager from "../Villager";
 import map from "./mapArray";
 import playerRange from "./tiles/PlayerRange3.png";
 import target from "./tiles/Target3.png";
@@ -114,8 +115,11 @@ function Map(props) {
         );
     });
 
-    let positionModifier = 0
-    if (props.playerDirection === -1) { positionModifier = -24}
+    let playerPosModifier = 0
+    if (props.playerDirection === -1) { playerPosModifier = -24}
+    let villagerPosModifier = 0
+    if (props.villager.direction === -1) { villagerPosModifier = -24}
+
 
     return (
         <div id="map">
@@ -123,7 +127,7 @@ function Map(props) {
             <Player
                 playerGrid={props.playerGrid}
                 top={props.playerPos[1]}
-                left={props.playerPos[0] + positionModifier}
+                left={props.playerPos[0] + playerPosModifier}
                 frameX={props.playerFrameX}
                 frameY={props.playerFrameY}
                 direction={props.playerDirection}
@@ -131,6 +135,15 @@ function Map(props) {
             >
             </Player>
             {enemies}
+            <Villager
+                gridDisplay={props.gridDisplay(props.villager.map)}
+                top={props.npcPos[1]}
+                left={props.npcPos[0] + villagerPosModifier}
+                frameX={props.villager.frameX}
+                frameY={props.villager.frameY}
+                direction={props.villager.direction}
+            >
+            </Villager>
             <ActionMenu
                 display={actionMenu}
                 attackButton={attackButton}

@@ -64,8 +64,8 @@ class SignUp extends Component {
         };
 
         if (usernameValid && emailValid && passwordVaild && confirmValid) {
-            axios.post(url, submission).then(response => { 
-                this.props.logInSuccess(response.data);
+            axios.post(url, submission).then(response => {
+                this.props.logInSuccess(response.data, this.props.createUser);
                 // Pass save data as well
             }).catch(() => {
                 this.setState({ usernameLabel: "Username or password incorrect.", passwordLabel: "Username or password incorrect."});

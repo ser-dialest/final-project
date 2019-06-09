@@ -174,10 +174,13 @@ class Layout extends Component {
         this.setState({signingIn: "flex", createUser: signUp})
     }
 
-    logInSuccess(data) {
+    logInSuccess(data, createUser) {
         // receive user data
         localStorage.setItem("token", data.token);
-        this.setState({ loggedIn: true, userName: data.username, signingIn: "none" }, () => {this.load()});
+        this.setState({ loggedIn: true, userName: data.username, signingIn: "none" }, () => {
+            if (createUser) { this.save() }
+            else { this.load() };
+        });
     }
 
     hideSignIn(event) {
@@ -829,6 +832,7 @@ class Layout extends Component {
                     createUser={this.state.createUser}
                     logInSuccess={this.logInSuccess}
                     hide={this.hideSignIn}
+                    save={() => this.save()}
                 >
                 </SignUp>
                 <div id="layout">
@@ -855,7 +859,7 @@ class Layout extends Component {
                             targeting={this.state.targeting}
                             tilePos={this.state.tilePos}
                             villager={this.state.villager}
-                            
+
                             attack={this.attack}
                             attackAction={this.attackAction}
                             backAction={this.backAction}

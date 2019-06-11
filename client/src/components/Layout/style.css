@@ -22,7 +22,7 @@ body {
     top: 0;
     left: 0;
     display: grid;
-    grid-template: 528px 1fr / 1fr 816px 1fr;
+    grid-template: 528px 1fr / 1fr 48px 816px 48px 1fr;
     border: none;
     width: 100vw;
     height: 100vh;
@@ -38,11 +38,19 @@ body {
     z-index: 0;
 }
 
-.borders {
+.sides {
     z-index: 100;
-    background: blue;
+    background-image: url("./Background.png");
     border: none;
     position: relative;
+}
+
+.left-border {
+    background-image: url("./LeftBorder.png");
+}
+
+.right-border {
+    background-image: url("./RightBorder.png");
 }
 
 #info {

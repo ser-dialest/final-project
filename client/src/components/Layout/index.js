@@ -836,7 +836,8 @@ class Layout extends Component {
                 >
                 </SignUp>
                 <div id="layout">
-                    <div className="borders"></div>
+                    <div className="sides"></div>
+                    <div className="sides left-border"></div>
                     <div id="map-area">
                         <Map
                             actionMenu={this.state.actionMenu}
@@ -873,8 +874,10 @@ class Layout extends Component {
                             waitAction={this.endTurn}
                         ></Map>
                     </div>
-                    <div className="borders"></div>
-                    <div className="borders"></div>
+                    <div className="sides right-border"></div>
+                    <div className="sides"></div>
+                    <div className="sides"></div>
+                    <div className="sides left-border"></div>
                     <div id="info">
                         <User
                             loggedIn={this.state.loggedIn}
@@ -886,7 +889,8 @@ class Layout extends Component {
                         ></User>
                         <Data></Data>
                     </div>
-                    <div className="borders"></div>
+                    <div className="sides right-border"></div>
+                    <div className="sides"></div>
                 </div>
             </div>
         )

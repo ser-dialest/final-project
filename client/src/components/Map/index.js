@@ -16,6 +16,7 @@ function Map(props) {
     const viewable = [];
     let actionMenu = "none";
     let attackButton = "none";
+    let healButton = "none";
 
     // Block that defines every tile in the map
     for (let x = 0;  x < width; x++) {
@@ -32,8 +33,8 @@ function Map(props) {
                 // Free move as not in battle
                 if (!props.inBattle) {
                     clickFunc = () => props.move(mapX, mapY);
-                    if (mapX === props.villager.map[0] && mapY === props.villager.map[1]) {
-                        clickFunc = () => props.heal();
+                    if (props.inRange([mapX, mapY], [props.villager.map])) {
+                        clickFunc = () => props.moveToHeal(mapX, mapY);
                     }
                 } else if (props.playerPhase) { // effectively if playerPhase && inBattle
                     // this is the player's turn
@@ -64,14 +65,15 @@ function Map(props) {
                                 }
                             } else if (props.inRange([mapX, mapY], props.playerRange)) {
                                 imageSource = playerRange;
-                                clickFunc = () => props.checkAttack(mapX, mapY);
+                                clickFunc = () => props.checkAction(mapX, mapY);
                             } else { 
                                 clickFunc = () => props.selectionFalse();
                             }
                         } else {
-                            // The action menu is up (Attack Wait Back)
+                            // The action menu is up (Attack Heal Wait Back)
                             actionMenu = "flex";
                             if (props.canAttack) { attackButton = "inline"};
+                            if (props.canHeal) { healButton = "inline"};
                         }
                     }
                 }
@@ -149,7 +151,9 @@ function Map(props) {
             <ActionMenu
                 display={actionMenu}
                 attackButton={attackButton}
+                healButton={healButton}
                 attack={() => props.attackAction()}
+                heal={() => props.healAction()}
                 wait={() => props.waitAction()}
                 back={() => props.backAction()}
             ></ActionMenu>

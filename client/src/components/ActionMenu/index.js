@@ -21,6 +21,13 @@ function ActionMenu(props) {
             >
                 Attack
             </button>
+            <button 
+                style={{display: `${props.healButton}`}} 
+                onClick={props.heal}
+            >
+                Heal
+            </button>
+
             <button onClick={props.wait}>Wait</button>
             <button onClick={props.back}>Back</button>
         </div>

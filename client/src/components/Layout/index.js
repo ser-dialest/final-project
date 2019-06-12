@@ -18,11 +18,13 @@ class Layout extends Component {
         this.attack = this.attack.bind(this);
         this.attackAction = this.attackAction.bind(this);
         this.backAction = this.backAction.bind(this);
-        this.checkAttack = this.checkAttack.bind(this);
+        this.checkAction = this.checkAction.bind(this);
         this.endTurn = this.endTurn.bind(this);
         this.gridDisplay = this.gridDisplay.bind(this);
         this.heal = this.heal.bind(this);
+        this.healAction = this.healAction.bind(this);
         this.move = this.move.bind(this);
+        this.moveToHeal = this.moveToHeal.bind(this);
         this.outOfRange = this.outOfRange.bind(this);
         this.selectionFalse = this.selectionFalse.bind(this);
         this.selectionTrue = this.selectionTrue.bind(this);
@@ -44,7 +46,9 @@ class Layout extends Component {
             selection: false,
             actionMenu: false,
             canAttack: false,
+            canHeal: false,
             targeting: false,
+            healing: false,
             // camera center
             camera: [10, 7],
             // Where player is on the screen
@@ -166,6 +170,8 @@ class Layout extends Component {
         }
     }
 
+    howManylines = 0;
+
     componentDidMount() {
         this.startBattleRange();
     }
@@ -216,11 +222,13 @@ class Layout extends Component {
                     mapTravelCost: r.mapTravelCost,
                     startBattleRange: r.startBattleRange,
                     moving: r.moving,
+                    healing: r.healing,
                     inBattle: r.inBattle,
                     playerPhase: r.playerPhase,
                     selection: r.selection,
                     actionMenu: r.actionMenu,
                     canAttack: r.canAttack,
+                    canHeal: r.canHeal,
                     targeting: r.targeting,
                     camera: r.camera,
                     playerGrid: r.playerGrid,
@@ -251,6 +259,8 @@ class Layout extends Component {
         let paragraph = this.state.paragraph;        
         let lines = this.state.lines;
         lines++;
+        this.howManylines++;
+        let key = "line"+this.howManylines;
         let string = "";
         let verbAgreement = "";
 
@@ -278,7 +288,11 @@ class Layout extends Component {
                 let gameOver = this.state.playerPhase ? "" : " Game over."
                 string = `${target} ${verbAgreement} been defeated.${gameOver}`;
                 break;
+            case "heal":
+                string = "Your HP are restored to maximum."
+                break;
             default:
+                string = "Something went wrong."
                 break;
         };
 
@@ -287,8 +301,7 @@ class Layout extends Component {
         const letterRoll = (timestamp) => {
             if (t <= string.length * framesPerTick) {
                 if (t % framesPerTick === 0) {
-                    console.log(t, string.substring(0, t/framesPerTick));
-                    paragraph[lines-1] = <p>{string.substring(0, t/framesPerTick)}</p>;
+                    paragraph[lines-1] = <p key={key}>{string.substring(0, t/framesPerTick)}</p>;
                     this.setState({ lines: lines, paragraph: paragraph });
                 }
                 t++;
@@ -297,14 +310,15 @@ class Layout extends Component {
                 if (combatStage === "start") {
                     this.displayText("damage", index);
                 }
-            } 
+            }
         };
 
+        console.log(this.howManylines);
         requestAnimationFrame(letterRoll);
     }
 
     // FUNCTIONS FOR DETERMINING AND SEARCHING RANGES AND LOCATIONS
-    // inRange, findRange, walkableRange, startBattleRange, adjacent, dontTreadOnMe, gridDisplay, canAttack
+    // inRange, findRange, walkableRange, startBattleRange, adjacent, dontTreadOnMe, gridDisplay, checkAction
 
     inRange(position, range) {
         let found = false;
@@ -394,7 +408,7 @@ class Layout extends Component {
         return result;
     }
 
-    checkAttack(mapX, mapY) {
+    checkAction(mapX, mapY) {
         // everything that happens when you have chosen to move in a place during battle
         // find if we are near the enemy and can attack
         let canAttack = false;
@@ -407,9 +421,15 @@ class Layout extends Component {
                 targetable.push(aggroIndex);
             }
         });
+        let canHeal = false;
+        let villagerAdjacent = this.adjacent(this.state.villager.map);
+        if (this.inRange([mapX, mapY], villagerAdjacent)) {
+            canHeal = true;
+        }
         this.setState({ 
             actionMenu: true,
             canAttack: canAttack,
+            canHeal: canHeal,
             targetable: targetable,
             confirmOrigin: this.state.camera, 
             confirmPlayerGrid: this.state.playerGrid, 
@@ -417,8 +437,9 @@ class Layout extends Component {
         }, () => this.move(mapX, mapY));
     }
 
+
     // FUNCTIONS FOR THE ACTION MENU
-    // backAction, attackAction
+    // backAction, attackAction, healAction
 
     backAction() {
         this.setState({ 
@@ -429,8 +450,13 @@ class Layout extends Component {
     }
 
     attackAction() {
-        this.setState({ actionMenu: false, targeting: true, });
+        this.setState({ actionMenu: false, targeting: true });
     }
+
+    healAction() {
+        this.setState({ actionMenu: false, moving: true }, () => this.heal() );
+    }
+
 
     // FUNCTIONS THAT HANDLE TURN TRANSITIONS AND BATTLE STATE
     // startBattle, selecting, selectionFalse, outOfRange, endTurn
@@ -477,6 +503,7 @@ class Layout extends Component {
                 selection: false,
                 actionMenu: false,
                 canAttack: false,
+                canHeal: false,
                 targeting: false,
                 mapTravelCost: newMap
             }, () => {
@@ -485,10 +512,11 @@ class Layout extends Component {
         } else {
             // It's the enemies' turn
             this.setState({ 
-                playerPhase: false, // this will be false when enemies can go
+                playerPhase: false,
                 selection: false,
                 actionMenu: false,
                 canAttack: false,
+                canHeal: false,
                 targeting: false,
                 mapTravelCost: newMap
             }, () => this.enemyTurn());
@@ -501,6 +529,9 @@ class Layout extends Component {
     move(mapX, mapY) {
         // check if it is a walkable tile
         let walkable = this.dontTreadOnMe();
+        if (this.state.healing) {
+            walkable[this.state.villager.map[0]-1][this.state.villager.map[1]-1] = 0;
+        }
         if (walkable[mapX-1][mapY-1] === 0) {
             // use easy-astar npm to generate array of coordinates to goal
             const startPos = {x:this.state.playerMap[0], y:this.state.playerMap[1]};
@@ -513,6 +544,7 @@ class Layout extends Component {
                 }
             }, startPos, endPos);
             let path = aStarPath.map( element => [element.x, element.y]);
+            if (this.state.healing) { path.pop() };
             this.setState({moving: true}, () => this.direction(path));
         };
     }
@@ -549,6 +581,8 @@ class Layout extends Component {
                 } else {
                     this.step(direction, path);
                 }
+            } else if (this.state.healing) {
+                this.heal();
             } else {
                 bandits[this.state.activeBandit].frameX = 0;
                 this.setState({moving: false, playerFrameX: 0, bandits: bandits}, () => {
@@ -894,10 +928,52 @@ class Layout extends Component {
     }
 
     // FUNCTIONS FOR VILLAGER STUFF
-    // heal
+    // heal moveToHeal
 
     heal() {
-        console.log("heal");
+        let player = this.state.player;
+        player.hp = player.maxHP;
+        let playerDirection = this.state.playerDirection;
+        let villager = this.state.villager;
+        let t = 0;
+
+        const healAnimation = (timestamp) => {
+            t++;
+            if (t < 65) {
+                if (t === 8) {
+                    villager.frameX = -72;
+                    this.setState({villager: villager, playerFrameX: 72, playerFrameY: -96});
+                }
+                requestAnimationFrame(healAnimation);
+            } else {
+                villager.frameX = 0;
+                this.setState({villager: villager, playerFrameX: 0, playerFrameY: 0});
+            }
+        }
+
+        if (villager.map[0] < this.state.playerMap[0]) {
+            villager.direction = 1;
+            playerDirection = -1;
+        } else if (villager.map[0] > this.state.playerMap[0]) {
+            villager.direction = -1;
+            playerDirection = 1;
+        } else if (villager.map[0] === this.state.playerMap[0]) {
+            villager.direction = playerDirection * -1 
+        }
+
+        this.setState(
+            { playerDirection: playerDirection, villager: villager, healing: false }, 
+            () => {
+                requestAnimationFrame(healAnimation);
+                this.displayText("heal", 0);
+                if (this.state.inBattle) { this.endTurn() }
+                else { this.setState({ moving: false })}
+            }
+        );
+    }
+
+    moveToHeal(mapX, mapY) {
+        this.setState({ healing: true }, () => this.move(mapX, mapY));
     }
 
     render() {
@@ -920,6 +996,7 @@ class Layout extends Component {
                             bandits={this.state.bandits}
                             camera={this.state.camera}
                             canAttack={this.state.canAttack}
+                            canHeal={this.state.canHeal}
                             gameOver={this.state.gameOver}
                             inBattle={this.state.inBattle}
                             moving={this.state.moving}
@@ -940,11 +1017,13 @@ class Layout extends Component {
                             attack={this.attack}
                             attackAction={this.attackAction}
                             backAction={this.backAction}
-                            checkAttack={this.checkAttack}
+                            checkAction={this.checkAction}
                             gridDisplay={this.gridDisplay}
                             heal={this.heal}
+                            healAction={this.healAction}
                             inRange={this.inRange}
                             move={this.move}
+                            moveToHeal={this.moveToHeal}
                             outOfRange={this.outOfRange}
                             selectionFalse={this.selectionFalse}
                             selectionTrue={this.selectionTrue}

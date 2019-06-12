@@ -4,7 +4,39 @@
     width: 720px;
     height: 432px;
     z-index: 250;
+    padding: 24px;
     background: gray;
-    justify-content: center;
+    justify-content: space-around;
     flex-direction: column;
+    border: solid;
+    border-width: 3px;
+    border-color: black;
+}
+
+#button-div {
+    display: flex;
+    justify-content: space-around;
+}
+
+#button-div button {
+    width: 220px;
+}
+
+#sign-in label {
+    margin-bottom: 0;
+}
+
+input[type=text] {
+    padding: 0px;
+    border: solid;
+    border-width: 3px;
+    border-color: black;
+}
+
+input[type=password] {
+    padding: 0px;
+    margin-bottom: 3px;    
+    border: solid;
+    border-width: 3px;
+    border-color: black;
 }

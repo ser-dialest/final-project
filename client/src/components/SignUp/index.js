@@ -140,9 +140,12 @@ class SignUp extends Component {
             );
         };
 
-        contents.push(<button onClick={this.handleFormSubmit} key="Submit">Submit</button>);
-
-        contents.push(<button onClick={this.props.hide} key="Back">Back</button>);
+        contents.push(
+            <div id="button-div">
+                <button onClick={this.handleFormSubmit} key="Submit">Submit</button>
+                <button onClick={this.props.hide} key="Back">Back</button>
+            </div>
+        );
 
         return (
             <form

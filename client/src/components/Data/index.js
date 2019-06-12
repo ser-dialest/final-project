@@ -3,7 +3,7 @@ import "./style.css";
 
 function Data(props) {
     return (
-        <div>
+        <div id="data">
             <p>You got some stats</p>
             <p><span>HP</span><span>ATK</span></p>
             <br />

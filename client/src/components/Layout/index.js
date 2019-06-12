@@ -880,6 +880,8 @@ class Layout extends Component {
                     <div className="sides left-border"></div>
                     <div id="info">
                         <User
+                            playerHP={this.state.player.hp}
+                            maxHP={this.state.player.maxHP}
                             loggedIn={this.state.loggedIn}
                             userName={this.state.userName}
                             signUp={() => this.signIn(true)}

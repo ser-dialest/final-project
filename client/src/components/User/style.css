@@ -1,0 +1,15 @@
+#user {
+    display: flex;
+    justify-content: space-around;
+    flex-direction: column;
+    align-items: space-around;
+    margin: 24px;
+}
+
+/* #user button {
+    background-color: #BCBCBC;
+    border-width: 3px;
+    border-color: black;
+    margin:3px;
+} */
+

@@ -55,9 +55,16 @@ body {
 
 #info {
     z-index: 100;
-    background: beige;
+    background: #FCE0A8;
     border: none;
     display: grid;
-    grid-template: 1fr / 1fr 1fr;
+    grid-template: 1fr / 1fr 2fr;
     position: relative;
+}
+
+button {
+    background-color: #BCBCBC;
+    border-width: 3px;
+    border-color: black;
+    margin:3px;
 }

@@ -8,7 +8,6 @@ import map from "./mapArray";
 import playerRange from "./tiles/PlayerRange3.png";
 import target from "./tiles/Target3.png";
 import "./style.css";
-// import aStar from "easy-astar";
 
 function Map(props) {
 
@@ -33,6 +32,9 @@ function Map(props) {
                 // Free move as not in battle
                 if (!props.inBattle) {
                     clickFunc = () => props.move(mapX, mapY);
+                    if (mapX === props.villager.map[0] && mapY === props.villager.map[1]) {
+                        clickFunc = () => props.heal();
+                    }
                 } else if (props.playerPhase) { // effectively if playerPhase && inBattle
                     // this is the player's turn
                     // if no one has been selected, selecting is all you can do

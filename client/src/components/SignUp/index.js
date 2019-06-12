@@ -141,7 +141,7 @@ class SignUp extends Component {
         };
 
         contents.push(
-            <div id="button-div">
+            <div id="button-div" key="sign-up=buttons">
                 <button onClick={this.handleFormSubmit} key="Submit">Submit</button>
                 <button onClick={this.props.hide} key="Back">Back</button>
             </div>

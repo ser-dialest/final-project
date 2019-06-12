@@ -27,14 +27,14 @@
 }
 
 input[type=text] {
-    padding: 0px;
+    padding: 0px 6px; 
     border: solid;
     border-width: 3px;
     border-color: black;
 }
 
 input[type=password] {
-    padding: 0px;
+    padding: 0px 6px;
     margin-bottom: 3px;    
     border: solid;
     border-width: 3px;

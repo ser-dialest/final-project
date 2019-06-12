@@ -21,6 +21,7 @@ class Layout extends Component {
         this.checkAttack = this.checkAttack.bind(this);
         this.endTurn = this.endTurn.bind(this);
         this.gridDisplay = this.gridDisplay.bind(this);
+        this.heal = this.heal.bind(this);
         this.move = this.move.bind(this);
         this.outOfRange = this.outOfRange.bind(this);
         this.selectionFalse = this.selectionFalse.bind(this);
@@ -244,7 +245,7 @@ class Layout extends Component {
     }
 
     // FUNCTIONS FOR DATA
-    // displayText scrollText
+    // displayText
 
     displayText(combatStage, index) {
         let paragraph = this.state.paragraph;        
@@ -301,8 +302,6 @@ class Layout extends Component {
 
         requestAnimationFrame(letterRoll);
     }
-
-
 
     // FUNCTIONS FOR DETERMINING AND SEARCHING RANGES AND LOCATIONS
     // inRange, findRange, walkableRange, startBattleRange, adjacent, dontTreadOnMe, gridDisplay, canAttack
@@ -375,6 +374,7 @@ class Layout extends Component {
         this.state.bandits.forEach( each => {
             walkable[each.map[0]-1][each.map[1]-1] = 1;
         });
+        walkable[this.state.villager.map[0]-1][this.state.villager.map[1]-1] = 1;
         return walkable;
     }
 
@@ -854,6 +854,7 @@ class Layout extends Component {
     }
 
     // FUNCTIONS FOR BANDIT BEHAVIOR
+    // enemyTurn enemyMove endEnemyTurn
 
     enemyTurn() {
         this.setState({activeBandit: this.state.aggroBandits[0]},
@@ -891,8 +892,13 @@ class Layout extends Component {
             this.setState({ playerPhase: true, moving: false });
         }
     }
-    
 
+    // FUNCTIONS FOR VILLAGER STUFF
+    // heal
+
+    heal() {
+        console.log("heal");
+    }
 
     render() {
         return (
@@ -936,6 +942,7 @@ class Layout extends Component {
                             backAction={this.backAction}
                             checkAttack={this.checkAttack}
                             gridDisplay={this.gridDisplay}
+                            heal={this.heal}
                             inRange={this.inRange}
                             move={this.move}
                             outOfRange={this.outOfRange}

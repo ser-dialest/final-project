@@ -32,6 +32,8 @@ class Layout extends Component {
             userName: "",
             signingIn: "none",
             createUser: false,
+            paragraph: [],
+            lines: 0,
             centerGrid: {x: 10, y: 7},
             mapTravelCost: map.map( row => row.map( column => column.travelCost)),
             startBattleRange: [],
@@ -240,6 +242,67 @@ class Layout extends Component {
             })
         }
     }
+
+    // FUNCTIONS FOR DATA
+    // displayText scrollText
+
+    displayText(combatStage, index) {
+        let paragraph = this.state.paragraph;        
+        let lines = this.state.lines;
+        lines++;
+        let string = "";
+        let verbAgreement = "";
+
+        if (lines > 5) {
+            // scrollText() or
+            paragraph.shift();
+            lines--;
+        }
+        paragraph.push(<p></p>)
+        
+        switch(combatStage) {
+            case "start":    
+                let subject = this.state.playerPhase ? "You" : "The bandit";
+                verbAgreement = this.state.playerPhase ? "" : "s";
+                string = `${subject} attack${verbAgreement}!`;
+                break;
+            case "damage":
+                let verb = this.state.playerPhase ? "inflicted" : "received";
+                let damage = this.state.playerPhase ? this.state.player.attack : this.state.bandits[index].attack;
+                string = `You ${verb} ${damage} damage!`;
+                break;
+            case "dead":
+                let target = this.state.playerPhase ? "The bandit" : "You";
+                verbAgreement = this.state.playerPhase ? "has" : "have";
+                let gameOver = this.state.playerPhase ? "" : " Game over."
+                string = `${target} ${verbAgreement} been defeated.${gameOver}`;
+                break;
+            default:
+                break;
+        };
+
+        let t = 0;
+        let framesPerTick = 2;
+        const letterRoll = (timestamp) => {
+            if (t <= string.length * framesPerTick) {
+                if (t % framesPerTick === 0) {
+                    console.log(t, string.substring(0, t/framesPerTick));
+                    paragraph[lines-1] = <p>{string.substring(0, t/framesPerTick)}</p>;
+                    this.setState({ lines: lines, paragraph: paragraph });
+                }
+                t++;
+                requestAnimationFrame(letterRoll);
+            } else {
+                if (combatStage === "start") {
+                    this.displayText("damage", index);
+                }
+            } 
+        };
+
+        requestAnimationFrame(letterRoll);
+    }
+
+
 
     // FUNCTIONS FOR DETERMINING AND SEARCHING RANGES AND LOCATIONS
     // inRange, findRange, walkableRange, startBattleRange, adjacent, dontTreadOnMe, gridDisplay, canAttack
@@ -692,6 +755,7 @@ class Layout extends Component {
                 bandits[index].hp -= this.state.player.attack;
                 if (bandits[index].hp <= 0) { 
                     // death animation
+                    this.displayText("dead", index);
                     t = 0;
                     animationLength = 163;
                     requestAnimationFrame(death);
@@ -703,6 +767,8 @@ class Layout extends Component {
                 let player = this.state.player;
                 player.hp -= this.state.bandits[index].attack;
                 if (player.hp <= 0 ) {
+                    player.hp = 0;
+                    this.displayText("dead", index);
                     t = 0;
                     animationLength = 163;
                     requestAnimationFrame(death);
@@ -778,7 +844,11 @@ class Layout extends Component {
             }
             this.setState(
                 { playerDirection: playerDirection, bandits: bandits }, 
-                () => requestAnimationFrame(swing)
+                () => {
+                    requestAnimationFrame(swing);
+                    this.displayText("start", index);
+
+                }
             );
         });
     }
@@ -889,7 +959,9 @@ class Layout extends Component {
                             save={() => this.save()}
                             load={() => this.load()}
                         ></User>
-                        <Data></Data>
+                        <Data
+                            paragraph={this.state.paragraph}
+                        ></Data>
                     </div>
                     <div className="sides right-border"></div>
                     <div className="sides"></div>

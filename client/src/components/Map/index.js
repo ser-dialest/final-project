@@ -41,6 +41,7 @@ function Map(props) {
                     // if no one has been selected, selecting is all you can do
                     if (!props.selection) {
                         if ((x+1) === props.playerGrid[0] && (y+1) === props.playerGrid[1]) { 
+                            imageSource = playerRange;
                             clickFunc = () => props.selectionTrue()
                         }
                     } else {

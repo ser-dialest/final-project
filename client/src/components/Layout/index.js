@@ -282,7 +282,9 @@ class Layout extends Component {
                 break;
             case "damage":
                 let verb = this.state.playerPhase ? "inflicted" : "received";
-                let damage = this.state.playerPhase ? this.state.player.attack : this.state.bandits[index].attack;
+                let damage = this.state.playerPhase ? 
+                    (this.state.player.attack - map[this.state.bandits[index].map[0]][this.state.bandits[index].map[1]].defense) : 
+                    (this.state.bandits[index].attack - map[this.state.playerMap[0]][this.state.playerMap[1]].defense);
                 string = `You ${verb} ${damage} damage!`;
                 if (this.targetVillager) { string = `She receives ${damage} damage!`}
                 break;
@@ -612,7 +614,17 @@ class Layout extends Component {
                 this.heal();
             } else {
                 bandits[this.state.activeBandit].frameX = 0;
-                this.setState({moving: false, playerFrameX: 0, bandits: bandits}, () => {
+                let aggro = this.state.aggroBandits;
+                if (this.state.inBattle) {
+                    let aggroRange = this.findRange(this.state.playerMap, 5);
+                    this.state.bandits.forEach(each => {
+                        if (this.inRange(each.map, aggroRange) && !aggro.includes(this.state.bandits.indexOf(each))) {
+                            aggro.push(this.state.bandits.indexOf(each))
+                        }
+                    })
+                    aggro.sort();
+                }
+                this.setState({moving: false, playerFrameX: 0, bandits: bandits, aggroBandits: aggro}, () => {
                     if (!this.state.playerPhase) { this.endEnemyTurn(this.state.activeBandit)}
                 });
             }
@@ -772,7 +784,7 @@ class Layout extends Component {
                 if (t === framesPerTick*2 || t === framesPerTick*8) { 
                     if (this.state.playerPhase) {
                         this.setState({ playerFrameX: 0, playerFrameY: -96 }); 
-                    } else { 
+                    } else {
                         bandits[this.state.activeBandit].frameX = 0;
                         bandits[this.state.activeBandit].frameY = -96;
                         this.setState({bandits: bandits});
@@ -819,7 +831,7 @@ class Layout extends Component {
                 }
                 requestAnimationFrame(swing);
             } else if (this.state.playerPhase) { 
-                bandits[index].hp -= this.state.player.attack;
+                bandits[index].hp -= (this.state.player.attack - map[bandits[index].map[0]][bandits[index].map[1]].defense);
                 if (bandits[index].hp <= 0) { 
                     // Gain EXP
                     let player = this.state.player;
@@ -830,8 +842,6 @@ class Layout extends Component {
                         player.attack+= 1;
                         if (player.level >= 4) {player.speed = 5}
                     }
-                    console.log(player);
-                    console.log(this.state.player);
                     this.setState({ player: player }, () => this.displayText("dead", index));
                     // death animation
                     t = 0;
@@ -856,7 +866,7 @@ class Layout extends Component {
                     }
                 } else {
                     let player = this.state.player;
-                    player.hp -= this.state.bandits[index].attack;
+                    player.hp -= (this.state.bandits[index].attack - map[this.state.playerMap[0]][this.state.playerMap[1]].defense);
                     if (player.hp <= 0 ) {
                         player.hp = 0;
                         this.displayText("dead", index);
@@ -1027,6 +1037,7 @@ class Layout extends Component {
     }
 
     endEnemyTurn(index) {
+        console.log(this.state.aggroBandits);
         if (this.state.aggroBandits.indexOf(index) < this.state.aggroBandits.length - 1) {
             index++;
             this.setState({ activeBandit: this.state.aggroBandits[index]}, () => {

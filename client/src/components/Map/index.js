@@ -29,7 +29,7 @@ function Map(props) {
 
             // The block beginning with this if statements controlls the onClick events for all tiles
             // It has no impact on the movement or appearance of any components.
-            if (!props.moving && !props.gameOver) { // Only accept commands if we aren't moving
+            if (!props.moving && !props.gameOver && (props.signingIn === "none")) { // Only accept commands if we aren't moving
                 // Free move as not in battle
                 if (!props.inBattle) {
                     clickFunc = () => props.move(mapX, mapY);

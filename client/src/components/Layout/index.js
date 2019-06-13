@@ -172,6 +172,8 @@ class Layout extends Component {
 
     howManylines = 0;
     targetVillager = false;
+    villagerLives = true;
+    expForLevel = [0,20,50,100,170,280,410]
 
     componentDidMount() {
         this.startBattleRange();
@@ -291,6 +293,17 @@ class Layout extends Component {
                 string = `${target} ${verbAgreement} been defeated.${gameOver}`;
                 if (this.targetVillager) { string = "The villager has been killed." }
                 break;
+            case "exp":
+                string = "You have gained 10 experience.";
+                break;
+            case "next":
+                let toNext = this.expForLevel.find((element) => element >= this.state.player.exp) - this.state.player.exp;
+                if (toNext === 0) {
+                    string = "You have advanced to the next level."
+                } else {
+                    string = `You need ${toNext} experience to advance.`;
+                }
+                break;
             case "heal":
                 string = "Your HP are restored to maximum."
                 break;
@@ -312,6 +325,10 @@ class Layout extends Component {
             } else {
                 if (combatStage === "start") {
                     this.displayText("damage", index);
+                } else if (combatStage === "dead" && this.state.playerPhase) {
+                    this.displayText("exp", index);
+                } else if (combatStage === "exp") {
+                    this.displayText("next");
                 }
             }
         };
@@ -496,7 +513,6 @@ class Layout extends Component {
         // End battle if aggrBandits are dead
         if (this.state.aggroBandits.length === 0) {
             let player = this.state.player;
-            player.hp = 10;
             this.setState({
                 player: player, 
                 inBattle: false,
@@ -556,9 +572,17 @@ class Layout extends Component {
         let bandits = this.state.bandits
         if (!this.state.inBattle && this.inRange(this.state.playerMap, this.state.startBattleRange)) {
             this.startBattle();
-        } else if (!this.state.playerPhase && 
-            (this.inRange(this.state.playerMap, this.adjacent(bandits[this.state.activeBandit].map)) || 
-            this.inRange(this.state.villager.map, this.adjacent(bandits[this.state.activeBandit].map)))
+        } else if (
+            !this.state.playerPhase && 
+            (
+                (
+                    !this.targetVillager && 
+                    this.inRange(this.state.playerMap, this.adjacent(bandits[this.state.activeBandit].map))
+                ) || (
+                    this.targetVillager && 
+                    this.inRange(this.state.villager.map, this.adjacent(bandits[this.state.activeBandit].map))
+                )
+            )
         ) {
             this.attack(this.state.activeBandit);
         } else {
@@ -765,6 +789,7 @@ class Layout extends Component {
                     } else {
                         if ( t === framesPerTick*3 ) {
                             if (this.targetVillager) {
+                                villager.frameX = 0;
                                 villager.frameY = -192;
                                 this.setState({ villager: villager });
                             } else {
@@ -796,8 +821,19 @@ class Layout extends Component {
             } else if (this.state.playerPhase) { 
                 bandits[index].hp -= this.state.player.attack;
                 if (bandits[index].hp <= 0) { 
+                    // Gain EXP
+                    let player = this.state.player;
+                    player.exp+= 10;
+                    player.level = this.expForLevel.indexOf(this.expForLevel.find((element) => element > player.exp));
+                    if (this.expForLevel.includes(player.exp)) {
+                        player.maxHP+= 2;
+                        player.attack+= 1;
+                        if (player.level >= 4) {player.speed = 5}
+                    }
+                    console.log(player);
+                    console.log(this.state.player);
+                    this.setState({ player: player }, () => this.displayText("dead", index));
                     // death animation
-                    this.displayText("dead", index);
                     t = 0;
                     animationLength = 163;
                     requestAnimationFrame(death);
@@ -812,6 +848,7 @@ class Layout extends Component {
                     villager.hp -= this.state.bandits[index].attack;
                     if (villager.hp <= 0) {
                         this.displayText("dead", index);
+                        this.villagerLives = false;
                         requestAnimationFrame(death);
                     } else {
                         villager.frameY = 0;
@@ -876,9 +913,9 @@ class Layout extends Component {
                 } else {
                     if (this.targetVillager) {
                         villager.map = [50, 50];
-                        this.setState({ villager: villager }, () => this.endTurn(index));
+                        this.setState({ villager: villager }, () => this.endEnemyTurn(index));
                     } else {
-                        this.setState({ gameOver: true })
+                        this.setState({ gameOver: true, moving: false });
                     }
                 }
 
@@ -898,17 +935,25 @@ class Layout extends Component {
         let playerDirection = this.state.playerDirection;
         // mark as moving during animation to forbid input
         this.setState({ moving: true }, () => {
-            if (this.state.bandits[index].map[0] < this.state.playerMap[0]) {
-                bandits[index].direction = 1;
-                playerDirection = -1;
-            } else if (this.state.bandits[index].map[0] > this.state.playerMap[0]) {
-                bandits[index].direction = -1;
-                playerDirection = 1;
-            } else if (this.state.bandits[index].map[0] === this.state.playerMap[0]) {
-                if (this.state.playerPhase) {
-                    bandits[index].direction = playerDirection * -1;
-                } else {
-                    playerDirection = bandits[index].direction * -1
+            if (this.targetVillager) {
+                if (bandits[index].map[0] < villager.map[0] ) {
+                    bandits[index].direction = 1;
+                } else if (bandits[index].map[0] > villager.map[0] ) {
+                    bandits[index].direction = -1;
+                }
+            } else {
+                if (this.state.bandits[index].map[0] < this.state.playerMap[0]) {
+                    bandits[index].direction = 1;
+                    playerDirection = -1;
+                } else if (this.state.bandits[index].map[0] > this.state.playerMap[0]) {
+                    bandits[index].direction = -1;
+                    playerDirection = 1;
+                } else if (this.state.bandits[index].map[0] === this.state.playerMap[0]) {
+                    if (this.state.playerPhase) {
+                        bandits[index].direction = playerDirection * -1;
+                    } else {
+                        playerDirection = bandits[index].direction * -1
+                    }
                 }
             }
             this.setState(
@@ -933,24 +978,31 @@ class Layout extends Component {
 
     enemyMove(index) {
         const startPos = { x: this.state.bandits[index].map[0] , y: this.state.bandits[index].map[1] }; 
+        let walkable = this.dontTreadOnMe();
+        walkable[startPos.x][startPos.y] = 0;
+        let path = [];
+        let aStarPath = [];
+
         // start by checking if villager is reachable
         this.targetVillager = false;
         let endPos = { x: this.state.villager.map[0], y: this.state.villager.map[1] }
-        let walkable = this.dontTreadOnMe();
-        walkable[startPos.x][startPos.y] = 0;
-        walkable[this.state.villager.map[0]-1][this.state.villager.map[1]-1] = 0;
         
-        let aStarPath = aStar((x, y)=>{
-            if (walkable[x-1][y-1] === 0) {
-                return true; // 0 means road
-            } else {
-                return false; // 1 means wall
-            }
-        }, startPos, endPos);
-        // check to see if villager can be targeted
-        // temporarily make villager walkable
-        let path = aStarPath.map( element => [element.x, element.y]);
-        if (path.length <= 6) { 
+        if (this.villagerLives) {
+            walkable[this.state.villager.map[0]-1][this.state.villager.map[1]-1] = 0;
+            
+            aStarPath = aStar((x, y)=>{
+                if (walkable[x-1][y-1] === 0) {
+                    return true; // 0 means road
+                } else {
+                    return false; // 1 means wall
+                }
+            }, startPos, endPos);
+            // check to see if villager can be targeted
+            // temporarily make villager walkable
+            path = aStarPath.map( element => [element.x, element.y]);
+        }
+
+        if (this.villagerLives && path.length <= 6) { 
             this.targetVillager = true;
         } else {
             this.targetVillager = false;
@@ -964,7 +1016,6 @@ class Layout extends Component {
                     return false; // 1 means wall
                 }
             }, startPos, endPos);
-            
             
             path = aStarPath.map( element => [element.x, element.y]);
         }
@@ -1068,6 +1119,7 @@ class Layout extends Component {
                             playerPos={this.state.playerPos}
                             playerRange={this.state.playerRange}
                             selection={this.state.selection}
+                            signingIn={this.state.signingIn}
                             targetable={this.state.targetable}
                             targeting={this.state.targeting}
                             tilePos={this.state.tilePos}
@@ -1097,6 +1149,7 @@ class Layout extends Component {
                         <User
                             playerHP={this.state.player.hp}
                             maxHP={this.state.player.maxHP}
+                            level={this.state.player.level}
                             loggedIn={this.state.loggedIn}
                             userName={this.state.userName}
                             signUp={() => this.signIn(true)}

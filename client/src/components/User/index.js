@@ -5,7 +5,7 @@ function User(props) {
     if (props.loggedIn){
         return (
             <div id="user">
-                <p>HP: {props.playerHP}/{props.maxHP} Level: 1</p>
+                <p>HP: {props.playerHP}/{props.maxHP} Level: {props.level}</p>
                 <p>Welcome, {props.userName}!</p>
                 <button onClick={props.save}>Save</button>
                 <button onClick={props.load}>Load</button>
@@ -14,7 +14,7 @@ function User(props) {
     } else {
         return (
             <div id="user">
-                <p>HP: {props.playerHP}/{props.maxHP} Level: 1</p>
+                <p>HP: {props.playerHP}/{props.maxHP} Level: {props.level}</p>
                 <p>Log in or Sign up to save!</p>
                 <button onClick={props.logIn}>Log In</button>
                 <button onClick={props.signUp}>Sign Up</button>

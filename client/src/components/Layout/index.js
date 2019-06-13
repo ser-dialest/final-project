@@ -6,6 +6,11 @@ import SignUp from "../SignUp";
 import "./style.css";
 import map from "../Map/mapArray";
 import axios from "axios";
+import overWorld from "./Overworld.mp3";
+import battleTheme from "./Battle.mp3";
+import battleFanfare from "./BattleStart.mp3";
+import hit from "./Hit.mp3";
+import healSound from "./Heal.mp3";
 const aStar = require("easy-astar").easyAStar;
 
 class Layout extends Component {
@@ -174,9 +179,16 @@ class Layout extends Component {
     targetVillager = false;
     villagerLives = true;
     expForLevel = [0,20,50,100,170,280,410]
+    bgm = new Audio(overWorld);
+    fightSong = new Audio(battleTheme);
+    fightTrumpets = new Audio(battleFanfare);
+    hitSound = new Audio(hit);
+    healChime = new Audio(healSound);
 
     componentDidMount() {
         this.startBattleRange();
+        this.bgm.loop = true;
+        this.bgm.play();
     }
 
     // FUNCTIONS FOR USERS:
@@ -366,7 +378,7 @@ class Layout extends Component {
     walkableRange(start, speed) {
         let range = this.findRange(start, speed);
         let walkableRange = []
-        let walkableMap = this.state.mapTravelCost;
+        let walkableMap = this.dontTreadOnMe();
         range.forEach(test => {
             if (walkableMap[test[0]-1][test[1]-1] === 0) {
                 // easyAStar objects
@@ -484,6 +496,12 @@ class Layout extends Component {
 
     startBattle() {
         // play music
+        this.fightSong.loop = true;
+        this.bgm.pause();
+        this.fightTrumpets.play();
+        this.fightSong.currentTime = 0;
+        setTimeout( () =>this.fightSong.play(), 500);
+        
         let aggro = [];
         let aggroRange = this.findRange(this.state.playerMap, 5);
         this.state.bandits.forEach(each => {
@@ -513,7 +531,20 @@ class Layout extends Component {
     endTurn() {
         let newMap = this.dontTreadOnMe();
         // End battle if aggrBandits are dead
+        let fightSong = this.fightSong;
         if (this.state.aggroBandits.length === 0) {
+            let fadeInterval = setInterval(function(){
+                if(fightSong.volume <= 0.01){
+                    fightSong.pause();
+                    fightSong.volume = 1;
+                    clearInterval(fadeInterval);
+                    return;
+                }
+                fightSong.volume -= 0.01;
+            }, 1);
+            // this.fightSong.pause();
+            this.bgm.currentTime = 0;
+            this.bgm.play();
             let player = this.state.player;
             this.setState({
                 player: player, 
@@ -791,6 +822,7 @@ class Layout extends Component {
                     }
                 }
                 if (t === framesPerTick*3 || t === framesPerTick*5 || t === framesPerTick*7) {
+                    if (t === framesPerTick*3) { this.hitSound.play() }
                     if (this.state.playerPhase) {
                         this.setState({ playerFrameX: -72 }, () => {
                             if ( t === framesPerTick*3 ) {
@@ -925,7 +957,18 @@ class Layout extends Component {
                         villager.map = [50, 50];
                         this.setState({ villager: villager }, () => this.endEnemyTurn(index));
                     } else {
-                        this.setState({ gameOver: true, moving: false });
+                        this.setState({ gameOver: true, moving: false }, () => {
+                            let fightSong = this.fightSong;
+                            let fadeInterval = setInterval(function(){
+                                if(fightSong.volume <= 0.01){
+                                    fightSong.pause();
+                                    fightSong.volume = 1;
+                                    clearInterval(fadeInterval);
+                                    return;
+                                }
+                                fightSong.volume -= 0.01;
+                            }, 1);
+                        })
                     }
                 }
 
@@ -999,7 +1042,7 @@ class Layout extends Component {
         
         if (this.villagerLives) {
             walkable[this.state.villager.map[0]-1][this.state.villager.map[1]-1] = 0;
-            
+            walkable[this.state.playerMap[0]-1][this.state.playerMap[1]-1] = 1;
             aStarPath = aStar((x, y)=>{
                 if (walkable[x-1][y-1] === 0) {
                     return true; // 0 means road
@@ -1016,6 +1059,7 @@ class Layout extends Component {
             this.targetVillager = true;
         } else {
             this.targetVillager = false;
+            walkable[this.state.playerMap[0]-1][this.state.playerMap[1]-1] = 0;
             walkable[this.state.villager.map[0]-1][this.state.villager.map[1]-1] = 1;
             // switch to player as target
             endPos = { x: this.state.playerMap[0] , y: this.state.playerMap[1] };
@@ -1062,6 +1106,7 @@ class Layout extends Component {
             t++;
             if (t < 65) {
                 if (t === 8) {
+                    this.healChime.play();
                     villager.frameX = -72;
                     this.setState({villager: villager, playerFrameX: 72, playerFrameY: -96});
                 }

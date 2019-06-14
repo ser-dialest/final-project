@@ -1261,8 +1261,6 @@ class Layout extends Component {
     }
 
     enemyMove(index) {
-        console.log(this.state.aggroBandits);
-        console.log(this.state.bandits[index]);
         const startPos = { x: this.state.bandits[index].map[0] , y: this.state.bandits[index].map[1] }; 
         let walkable = this.dontTreadOnMe();
         walkable[startPos.x][startPos.y] = 0;

@@ -841,14 +841,14 @@ class Layout extends Component {
             (
                 (
                     !this.targetVillager && 
-                    this.inRange(this.state.playerMap, this.adjacent(bandits[this.state.activeBandit].map))
+                    this.inRange(this.state.playerMap, this.adjacent(bandits[this.state.aggroBandits[this.state.activeBandit]].map))
                 ) || (
                     this.targetVillager && 
-                    this.inRange(this.state.villager.map, this.adjacent(bandits[this.state.activeBandit].map))
+                    this.inRange(this.state.villager.map, this.adjacent(bandits[this.state.aggroBandits[this.state.activeBandit]].map))
                 )
             )
         ) {
-            this.attack(this.state.activeBandit);
+            this.attack(this.state.aggroBandits[this.state.activeBandit]);
         } else {
             // direction array based on unit circle
             if (path.length > 1) {
@@ -859,14 +859,14 @@ class Layout extends Component {
                     if (this.state.playerPhase) {
                         this.setState({playerDirection: 1}, () => this.step(direction, path));
                     } else {
-                        bandits[this.state.activeBandit].direction = 1;
+                        bandits[this.state.aggroBandits[this.state.activeBandit]].direction = 1;
                         this.setState({bandits: bandits}, () => this.step(direction, path));
                     }
                 } else if (direction[0] === -1) {
                     if (this.state.playerPhase) {
                         this.setState({playerDirection: -1}, () => this.step(direction, path));
                     } else {
-                        bandits[this.state.activeBandit].direction = -1;
+                        bandits[this.state.aggroBandits[this.state.activeBandit]].direction = -1;
                         this.setState({bandits: bandits}, () => this.step(direction, path));
                     }
                 } else {
@@ -875,7 +875,7 @@ class Layout extends Component {
             } else if (this.state.healing) {
                 this.heal();
             } else {
-                bandits[this.state.activeBandit].frameX = 0;
+                if (this.state.aggroBandits.length > 0) { bandits[this.state.aggroBandits[this.state.activeBandit]].frameX = 0; }
                 let aggro = this.state.aggroBandits;
                 if (this.state.inBattle) {
                     let aggroRange = this.findRange(this.state.playerMap, 5);
@@ -965,7 +965,7 @@ class Layout extends Component {
                         if (this.state.playerPhase) {
                             this.setState({ playerFrameX: this.state.playerFrameX + 72 });
                         } else {
-                            bandits[this.state.activeBandit].frameX += 72;
+                            bandits[this.state.aggroBandits[this.state.activeBandit]].frameX += 72;
                             this.setState({ bandits: bandits});
                         }
                     }
@@ -991,8 +991,8 @@ class Layout extends Component {
                                 () => requestAnimationFrame(playerWalking)
                             );
                         } else {
-                            bandits[this.state.activeBandit].pos[0] += (direction[0]*pixelsPerTick);
-                            bandits[this.state.activeBandit].pos[1] += (direction[1]*pixelsPerTick);
+                            bandits[this.state.aggroBandits[this.state.activeBandit]].pos[0] += (direction[0]*pixelsPerTick);
+                            bandits[this.state.aggroBandits[this.state.activeBandit]].pos[1] += (direction[1]*pixelsPerTick);
                             this.setState({ bandits: bandits }, 
                                 () => requestAnimationFrame(playerWalking)
                             );
@@ -1012,10 +1012,10 @@ class Layout extends Component {
                         () => this.direction(path)
                     );
                 } else {
-                    bandits[this.state.activeBandit].map[0] += direction[0];
-                    bandits[this.state.activeBandit].map[1] += direction[1];
-                    bandits[this.state.activeBandit].pos[0] = 0;
-                    bandits[this.state.activeBandit].pos[1] = 0;
+                    bandits[this.state.aggroBandits[this.state.activeBandit]].map[0] += direction[0];
+                    bandits[this.state.aggroBandits[this.state.activeBandit]].map[1] += direction[1];
+                    bandits[this.state.aggroBandits[this.state.activeBandit]].pos[0] = 0;
+                    bandits[this.state.aggroBandits[this.state.activeBandit]].pos[1] = 0;
                     this.setState({ bandits: bandits }, 
                         () => { 
                             this.direction(path)
@@ -1047,8 +1047,8 @@ class Layout extends Component {
                     if (this.state.playerPhase) {
                         this.setState({ playerFrameX: 0, playerFrameY: -96 }); 
                     } else {
-                        bandits[this.state.activeBandit].frameX = 0;
-                        bandits[this.state.activeBandit].frameY = -96;
+                        bandits[this.state.aggroBandits[this.state.activeBandit]].frameX = 0;
+                        bandits[this.state.aggroBandits[this.state.activeBandit]].frameY = -96;
                         this.setState({bandits: bandits});
                     }
                 }
@@ -1071,7 +1071,7 @@ class Layout extends Component {
                                 this.setState({ playerFrameY: -192 });
                             }
                         }
-                        bandits[this.state.activeBandit].frameX = -72;
+                        bandits[this.state.aggroBandits[this.state.activeBandit]].frameX = -72;
                         this.setState({bandits: bandits});
                     }
                 }
@@ -1079,7 +1079,7 @@ class Layout extends Component {
                     if (this.state.playerPhase) {
                         this.setState({ playerFrameX: -144 }); 
                     } else {
-                        bandits[this.state.activeBandit].frameX = -144;
+                        bandits[this.state.aggroBandits[this.state.activeBandit]].frameX = -144;
                         this.setState({bandits: bandits});
                     }
                 }
@@ -1087,8 +1087,8 @@ class Layout extends Component {
                     if (this.state.playerPhase) {
                         this.setState({ playerFrameX: 0, playerFrameY: 0 }); 
                     } else {
-                        bandits[this.state.activeBandit].frameX = 0;
-                        bandits[this.state.activeBandit].frameY = 0;
+                        bandits[this.state.aggroBandits[this.state.activeBandit]].frameX = 0;
+                        bandits[this.state.aggroBandits[this.state.activeBandit]].frameY = 0;
                         this.setState({bandits: bandits});
                     }
                 }
@@ -1125,7 +1125,7 @@ class Layout extends Component {
                         requestAnimationFrame(death);
                     } else {
                         villager.frameY = 0;
-                        this.setState({ villager: villager }, () => this.endEnemyTurn(index));
+                        this.setState({ villager: villager }, () => this.endEnemyTurn(this.state.activeBandit));
                     }
                 } else {
                     let player = this.state.player;
@@ -1135,7 +1135,7 @@ class Layout extends Component {
                         this.displayText("dead", index);
                         requestAnimationFrame(death);
                     } else {
-                        this.setState({ player: player, playerFrameY: 0 }, () => this.endEnemyTurn(index));
+                        this.setState({ player: player, playerFrameY: 0 }, () => this.endEnemyTurn(this.state.activeBandit));
                     }
                 }
             } 
@@ -1186,7 +1186,7 @@ class Layout extends Component {
                 } else {
                     if (this.targetVillager) {
                         villager.map = [50, 50];
-                        this.setState({ villager: villager }, () => this.endEnemyTurn(index));
+                        this.setState({ villager: villager }, () => this.endEnemyTurn(this.state.activeBandit));
                     } else {
                         this.setState({ gameOver: true, moving: false }, () => {
                             let fightSong = this.fightSong;
@@ -1255,8 +1255,8 @@ class Layout extends Component {
     // enemyTurn enemyMove endEnemyTurn
 
     enemyTurn() {
-        this.setState({activeBandit: this.state.aggroBandits[0]},
-            () => this.enemyMove(this.state.activeBandit)
+        this.setState({activeBandit: 0},
+            () => this.enemyMove(this.state.aggroBandits[this.state.activeBandit])
         );
     }
 
@@ -1314,10 +1314,9 @@ class Layout extends Component {
     }
 
     endEnemyTurn(index) {
-        console.log(this.state.aggroBandits);
-        if (this.state.aggroBandits.indexOf(index) < this.state.aggroBandits.length - 1) {
+        if (index < this.state.aggroBandits.length - 1) {
             index++;
-            this.setState({ activeBandit: this.state.aggroBandits[index]}, () => {
+            this.setState({ activeBandit: index}, () => {
                 this.enemyMove(this.state.aggroBandits[index])
             });
         } else {

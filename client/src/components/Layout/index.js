@@ -55,11 +55,11 @@ class Layout extends Component {
             targeting: false,
             healing: false,
             // camera center
-            camera: [10, 7],
+            camera: [28, 40],
             // Where player is on the screen
             playerGrid: [10, 7],
             // Where player is on the map
-            playerMap: [10, 7],
+            playerMap: [28, 40],
             // Where the camera and player were before moving in battle
             confirmOrigin: [],
             confirmPlayerGrid: [],
@@ -91,7 +91,7 @@ class Layout extends Component {
                     hp: 10,
                     speed: 4,
                     attack: 3,
-                    map: [15, 12],
+                    map: [7, 6],
                     range: [],
                     direction: 1,
                     frameX: 0,
@@ -102,7 +102,7 @@ class Layout extends Component {
                     hp: 10,
                     speed: 4,
                     attack: 3,
-                    map: [18, 5],
+                    map: [10, 8],
                     range: [],
                     direction: 1,
                     frameX: 0,
@@ -113,7 +113,7 @@ class Layout extends Component {
                     hp: 10,
                     speed: 4,
                     attack: 3,
-                    map: [40, 17],
+                    map: [7, 9],
                     range: [],
                     direction: 1,
                     frameX: 0,
@@ -124,7 +124,7 @@ class Layout extends Component {
                     hp: 10,
                     speed: 4,
                     attack: 3,
-                    map: [25, 25],
+                    map: [10, 11],
                     range: [],
                     direction: 1,
                     frameX: 0,
@@ -135,7 +135,7 @@ class Layout extends Component {
                     hp: 10,
                     speed: 4,
                     attack: 3,
-                    map: [4, 42],
+                    map: [7, 13],
                     range: [],
                     direction: 1,
                     frameX: 0,
@@ -146,7 +146,7 @@ class Layout extends Component {
                     hp: 10,
                     speed: 4,
                     attack: 3,
-                    map: [37, 26],
+                    map: [10, 14],
                     range: [],
                     direction: 1,
                     frameX: 0,
@@ -157,7 +157,238 @@ class Layout extends Component {
                     hp: 10,
                     speed: 4,
                     attack: 3,
-                    map: [20, 19],
+                    map: [19, 5],
+                    range: [],
+                    direction: 1,
+                    frameX: 0,
+                    frameY: 0,
+                    pos: [0, 0]
+                },
+                {
+                    hp: 10,
+                    speed: 4,
+                    attack: 3,
+                    map: [31, 6],
+                    range: [],
+                    direction: 1,
+                    frameX: 0,
+                    frameY: 0,
+                    pos: [0, 0]
+                },
+                {
+                    hp: 10,
+                    speed: 4,
+                    attack: 3,
+                    map: [34, 8],
+                    range: [],
+                    direction: 1,
+                    frameX: 0,
+                    frameY: 0,
+                    pos: [0, 0]
+                },
+                {
+                    hp: 10,
+                    speed: 4,
+                    attack: 3,
+                    map: [24, 13],
+                    range: [],
+                    direction: 1,
+                    frameX: 0,
+                    frameY: 0,
+                    pos: [0, 0]
+                },
+                {
+                    hp: 10,
+                    speed: 4,
+                    attack: 3,
+                    map: [43, 15],
+                    range: [],
+                    direction: 1,
+                    frameX: 0,
+                    frameY: 0,
+                    pos: [0, 0]
+                },
+                {
+                    hp: 10,
+                    speed: 4,
+                    attack: 3,
+                    map: [19, 17],
+                    range: [],
+                    direction: 1,
+                    frameX: 0,
+                    frameY: 0,
+                    pos: [0, 0]
+                },
+                {
+                    hp: 10,
+                    speed: 4,
+                    attack: 3,
+                    map: [26, 19],
+                    range: [],
+                    direction: 1,
+                    frameX: 0,
+                    frameY: 0,
+                    pos: [0, 0]
+                },
+                {
+                    hp: 10,
+                    speed: 4,
+                    attack: 3,
+                    map: [37, 19],
+                    range: [],
+                    direction: 1,
+                    frameX: 0,
+                    frameY: 0,
+                    pos: [0, 0]
+                },
+                {
+                    hp: 10,
+                    speed: 4,
+                    attack: 3,
+                    map: [7, 22],
+                    range: [],
+                    direction: 1,
+                    frameX: 0,
+                    frameY: 0,
+                    pos: [0, 0]
+                },
+                {
+                    hp: 10,
+                    speed: 4,
+                    attack: 3,
+                    map: [20, 25],
+                    range: [],
+                    direction: 1,
+                    frameX: 0,
+                    frameY: 0,
+                    pos: [0, 0]
+                },
+                {
+                    hp: 10,
+                    speed: 4,
+                    attack: 3,
+                    map: [15, 26],
+                    range: [],
+                    direction: 1,
+                    frameX: 0,
+                    frameY: 0,
+                    pos: [0, 0]
+                },
+                {
+                    hp: 10,
+                    speed: 4,
+                    attack: 3,
+                    map: [9, 29],
+                    range: [],
+                    direction: 1,
+                    frameX: 0,
+                    frameY: 0,
+                    pos: [0, 0]
+                },
+                {
+                    hp: 10,
+                    speed: 4,
+                    attack: 3,
+                    map: [9, 37],
+                    range: [],
+                    direction: 1,
+                    frameX: 0,
+                    frameY: 0,
+                    pos: [0, 0]
+                },
+                {
+                    hp: 10,
+                    speed: 4,
+                    attack: 3,
+                    map: [6, 43],
+                    range: [],
+                    direction: 1,
+                    frameX: 0,
+                    frameY: 0,
+                    pos: [0, 0]
+                },
+                {
+                    hp: 10,
+                    speed: 4,
+                    attack: 3,
+                    map: [16, 41],
+                    range: [],
+                    direction: 1,
+                    frameX: 0,
+                    frameY: 0,
+                    pos: [0, 0]
+                },
+                {
+                    hp: 10,
+                    speed: 4,
+                    attack: 3,
+                    map: [20, 43],
+                    range: [],
+                    direction: 1,
+                    frameX: 0,
+                    frameY: 0,
+                    pos: [0, 0]
+                },
+                {
+                    hp: 10,
+                    speed: 4,
+                    attack: 3,
+                    map: [30, 26],
+                    range: [],
+                    direction: 1,
+                    frameX: 0,
+                    frameY: 0,
+                    pos: [0, 0]
+                },
+                {
+                    hp: 10,
+                    speed: 4,
+                    attack: 3,
+                    map: [32, 28],
+                    range: [],
+                    direction: 1,
+                    frameX: 0,
+                    frameY: 0,
+                    pos: [0, 0]
+                },
+                {
+                    hp: 10,
+                    speed: 4,
+                    attack: 3,
+                    map: [29, 30],
+                    range: [],
+                    direction: 1,
+                    frameX: 0,
+                    frameY: 0,
+                    pos: [0, 0]
+                },
+                {
+                    hp: 10,
+                    speed: 4,
+                    attack: 3,
+                    map: [37, 29],
+                    range: [],
+                    direction: 1,
+                    frameX: 0,
+                    frameY: 0,
+                    pos: [0, 0]
+                },
+                {
+                    hp: 10,
+                    speed: 4,
+                    attack: 3,
+                    map: [41, 31],
+                    range: [],
+                    direction: 1,
+                    frameX: 0,
+                    frameY: 0,
+                    pos: [0, 0]
+                },
+                {
+                    hp: 10,
+                    speed: 4,
+                    attack: 3,
+                    map: [43, 33],
                     range: [],
                     direction: 1,
                     frameX: 0,
@@ -1030,6 +1261,8 @@ class Layout extends Component {
     }
 
     enemyMove(index) {
+        console.log(this.state.aggroBandits);
+        console.log(this.state.bandits[index]);
         const startPos = { x: this.state.bandits[index].map[0] , y: this.state.bandits[index].map[1] }; 
         let walkable = this.dontTreadOnMe();
         walkable[startPos.x][startPos.y] = 0;

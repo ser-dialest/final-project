@@ -873,6 +873,7 @@ class Layout extends Component {
                     this.step(direction, path);
                 }
             } else if (this.state.healing) {
+                console.log(this.state.moving);
                 this.heal();
             } else {
                 if (this.state.aggroBandits.length > 0) { bandits[this.state.aggroBandits[this.state.activeBandit]].frameX = 0; }
@@ -1344,6 +1345,8 @@ class Layout extends Component {
             } else {
                 villager.frameX = 0;
                 this.setState({villager: villager, playerFrameX: 0, playerFrameY: 0});
+                if (this.state.inBattle) { this.endTurn() }
+                else { this.setState({ moving: false })}
             }
         }
 
@@ -1360,10 +1363,8 @@ class Layout extends Component {
         this.setState(
             { playerDirection: playerDirection, villager: villager, healing: false }, 
             () => {
-                requestAnimationFrame(healAnimation);
                 this.displayText("heal", 0);
-                if (this.state.inBattle) { this.endTurn() }
-                else { this.setState({ moving: false })}
+                requestAnimationFrame(healAnimation);
             }
         );
     }

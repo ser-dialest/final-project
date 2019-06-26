@@ -526,8 +526,8 @@ class Layout extends Component {
             case "damage":
                 let verb = this.state.playerPhase ? "inflicted" : "received";
                 let damage = this.state.playerPhase ? 
-                    (this.state.player.attack - map[this.state.bandits[index].map[0]][this.state.bandits[index].map[1]].defense) : 
-                    (this.state.bandits[index].attack - map[this.state.playerMap[0]][this.state.playerMap[1]].defense);
+                    (this.state.player.attack - map[this.state.bandits[index].map[0]-1][this.state.bandits[index].map[1]-1].defense) : 
+                    (this.state.bandits[index].attack - map[this.state.playerMap[0]-1][this.state.playerMap[1]-1].defense);
                 string = `You ${verb} ${damage} damage!`;
                 if (this.targetVillager) { string = `She receives ${damage} damage!`}
                 break;
@@ -1095,7 +1095,7 @@ class Layout extends Component {
                 }
                 requestAnimationFrame(swing);
             } else if (this.state.playerPhase) { 
-                bandits[index].hp -= (this.state.player.attack - map[bandits[index].map[0]][bandits[index].map[1]].defense);
+                bandits[index].hp -= (this.state.player.attack - map[bandits[index].map[0]-1][bandits[index].map[1]-1].defense);
                 if (bandits[index].hp <= 0) { 
                     // Gain EXP
                     let player = this.state.player;
@@ -1130,7 +1130,7 @@ class Layout extends Component {
                     }
                 } else {
                     let player = this.state.player;
-                    player.hp -= (this.state.bandits[index].attack - map[this.state.playerMap[0]][this.state.playerMap[1]].defense);
+                    player.hp -= (this.state.bandits[index].attack - map[this.state.playerMap[0]-1][this.state.playerMap[1]-1].defense);
                     if (player.hp <= 0 ) {
                         player.hp = 0;
                         this.displayText("dead", index);

@@ -78,7 +78,7 @@ class Layout extends Component {
             targetable: [],
             activeBandit: 0,
             player: {
-                hp: 10,
+                hp: 1000,
                 maxHP: 10, 
                 speed: 4,
                 attack: 3,
@@ -492,7 +492,8 @@ class Layout extends Component {
                     targetable: r.targetable,
                     player: r.player,
                     npcPos: r.npcPos,
-                    bandits: r.bandits
+                    bandits: r.bandits,
+                    activeBandit: r.activeBandit
                 }) 
             })
         }
@@ -876,6 +877,7 @@ class Layout extends Component {
                 console.log(this.state.moving);
                 this.heal();
             } else {
+                // debugger;
                 if (this.state.aggroBandits.length > 0) { bandits[this.state.aggroBandits[this.state.activeBandit]].frameX = 0; }
                 let aggro = this.state.aggroBandits;
                 if (this.state.inBattle) {

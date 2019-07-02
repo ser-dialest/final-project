@@ -78,7 +78,7 @@ class Layout extends Component {
             targetable: [],
             activeBandit: 0,
             player: {
-                hp: 1000,
+                hp: 10,
                 maxHP: 10, 
                 speed: 4,
                 attack: 3,
